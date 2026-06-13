@@ -7,10 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.domain.models.*
 import com.example.core.domain.repository.ChatRepository
 import com.example.core.data.service.*
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
@@ -26,6 +24,7 @@ class ChatViewModel(
 
     // Sessions & Messages flowing from Room directly
     val sessions: StateFlow<List<ChatSessionModel>> = repository.allSessions
+        .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _currentSessionId = MutableStateFlow<String?>(null)
@@ -36,13 +35,16 @@ class ChatViewModel(
             if (id != null) repository.getMessagesForSessionFlow(id)
             else flowOf(emptyList())
         }
+        .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // Providers
     val providers: StateFlow<List<LlmProviderModel>> = repository.allProvidersFlow
+        .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val mcpServers: StateFlow<List<McpServerModel>> = repository.allServersFlow
+        .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _activeMcpToolsCount = MutableStateFlow<Int?>(null)
@@ -98,33 +100,37 @@ class ChatViewModel(
                     if (enabled.isEmpty()) {
                         _activeMcpToolsCount.value = 0
                     } else {
-                        var count = 0
-                        for (srv in enabled) {
-                            val listResult = mcpService.listTools(srv)
-                            val size = listResult.getOrNull()?.size
-                            if (size != null) {
-                                count += size
-                            } else {
-                                val cachedCount = if (!srv.cachedToolsJson.isNullOrBlank()) {
-                                    try {
-                                        JSONArray(srv.cachedToolsJson).length()
-                                    } catch (e: Exception) {
-                                        0
+                        coroutineScope {
+                            val deferredList = enabled.map { srv ->
+                                async {
+                                    val listResult = mcpService.listTools(srv)
+                                    val size = listResult.getOrNull()?.size
+                                    if (size != null) {
+                                        size
+                                    } else {
+                                        val cachedCount = if (!srv.cachedToolsJson.isNullOrBlank()) {
+                                            try {
+                                                JSONArray(srv.cachedToolsJson).length()
+                                            } catch (e: Exception) {
+                                                0
+                                            }
+                                        } else {
+                                            -1
+                                        }
+                                        cachedCount
                                     }
-                                } else {
-                                    // if unavailable, say -1 or fallback to 0
-                                    -1
-                                }
-                                if (cachedCount != -1) {
-                                    count += cachedCount
-                                } else {
-                                    _activeMcpToolsCount.value = -1
-                                    return@collectLatest
                                 }
                             }
+                            val results = deferredList.awaitAll()
+                            if (results.contains(-1)) {
+                                _activeMcpToolsCount.value = -1
+                            } else {
+                                _activeMcpToolsCount.value = results.sum()
+                            }
                         }
-                        _activeMcpToolsCount.value = count
                     }
+                } catch (e: java.util.concurrent.CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     _activeMcpToolsCount.value = -1
                 }
