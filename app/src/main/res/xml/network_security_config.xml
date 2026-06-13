@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Default security settings: Cleartext traffic is completely blocked -->
+    <base-config cleartextTrafficPermitted="false" />
+
+    <!-- Public Key Pinning (Certificate Pinning) Placeholders for AI and GitHub Api endpoints -->
+    <domain-config>
+        <domain includeSubdomains="true">api.openai.com</domain>
+        <domain includeSubdomains="true">api.github.com</domain>
+        <domain includeSubdomains="true">api.anthropic.com</domain>
+        
+        <pin-set expiration="2027-12-31">
+            <!-- Pin values are SHA-256 hashes of the public key in Base64 format -->
+            <!-- Primary Pin Placeholder -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <!-- Backup Pin Placeholder -->
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>
