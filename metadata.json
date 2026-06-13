@@ -1,0 +1,6 @@
+{
+  "name": "BYOK OS",
+  "description": "Bring Your Own Key AI Operating System. Command and custom-integrate local or cloud models, manage memory facts, execute MCP servers, and coordinate agentic loops.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

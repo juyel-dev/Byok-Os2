@@ -1,0 +1,10 @@
+# Treat APK and Keystore files as raw binary files to prevent Git from altering line endings or corrupting bytes during Sync/Push
+*.apk binary
+*.keystore binary
+*.base64 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.jar binary
+*.aar binary
