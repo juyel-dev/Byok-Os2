@@ -77,22 +77,22 @@ fun ChatScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = Slate900,
-                drawerContentColor = Color.White,
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
+                drawerContentColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.width(300.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(24.dp)
                 ) {
                     // Drawer Header
                     Text(
-                        text = "🔑 BYOK OS",
+                        text = "✧ BYOK OS",
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TealGlow,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 24.dp)
                     )
 
                     Button(
@@ -100,41 +100,45 @@ fun ChatScreen(
                             viewModel.createNewChat()
                             coroutineScope.launch { drawerState.close() }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Slate700),
-                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(52.dp)
                             .padding(bottom = 24.dp)
                     ) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add", tint = Color.White)
-                            Text("New Conversation", fontWeight = FontWeight.Bold, color = Color.White)
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                            Text("New Conversation", fontWeight = FontWeight.Bold)
                         }
                     }
 
                     Text(
-                        text = "CONVERSATIONS HISTORY",
+                        text = "Recents",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        color = Color(0xFF64748B),
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
 
                     // History list
                     LazyColumn(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(sessions) { s ->
                             val isSelected = s.id == currentSessionId
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) Color(0x3314B8A6) else Color.Transparent
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
                                 ),
-                                shape = RoundedCornerShape(10.dp),
+                                shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
@@ -143,20 +147,21 @@ fun ChatScreen(
                                     }
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.MailOutline,
                                         contentDescription = "Chat",
-                                        tint = if (isSelected) TealGlow else Color(0xFF475569),
-                                        modifier = Modifier.size(16.dp)
+                                        tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(18.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
                                     Text(
                                         text = s.title,
                                         fontSize = 14.sp,
-                                        color = if (isSelected) Color.White else Color(0xFF94A3B8),
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                        color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
                                         maxLines = 1,
                                         modifier = Modifier.weight(1f)
                                     )
@@ -168,8 +173,8 @@ fun ChatScreen(
                                             Icon(
                                                 imageVector = Icons.Default.Delete,
                                                 contentDescription = "Delete",
-                                                tint = Color(0xFF64748B),
-                                                modifier = Modifier.size(14.dp)
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.size(16.dp)
                                             )
                                         }
                                     }
@@ -178,12 +183,15 @@ fun ChatScreen(
                         }
                     }
 
-                    HorizontalDivider(color = Color(0xFF1E293B), modifier = Modifier.padding(vertical = 12.dp))
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant, 
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
 
                     // Bottom Navigation triggers (Settings Page & Autonomous Agent Screen)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Button(
@@ -191,16 +199,19 @@ fun ChatScreen(
                                 onNavigateToSettings()
                                 coroutineScope.launch { drawerState.close() }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Slate700),
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.weight(1f)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f).height(48.dp)
                         ) {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Settings, contentDescription = "Settings", modifier = Modifier.size(16.dp))
-                                Text("Settings", fontSize = 12.sp)
+                                Icon(Icons.Default.Settings, contentDescription = "Settings", modifier = Modifier.size(18.dp))
+                                Text("Settings", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
 
@@ -209,16 +220,16 @@ fun ChatScreen(
                                 onNavigateToAgent()
                                 coroutineScope.launch { drawerState.close() }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Teal600),
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.weight(1f)
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.weight(1f).height(48.dp)
                         ) {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Star, contentDescription = "Agent", modifier = Modifier.size(16.dp))
-                                Text("Agent", fontSize = 12.sp)
+                                Icon(Icons.Default.Star, contentDescription = "Agent", modifier = Modifier.size(18.dp))
+                                Text("Agent", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -236,32 +247,35 @@ fun ChatScreen(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(20.dp))
+                                    .clip(RoundedCornerShape(24.dp))
                                     .clickable(enabled = !isStreaming) { showProviderDropdown = !showProviderDropdown }
-                                    .background(if (isStreaming) Slate800.copy(alpha = 0.5f) else Slate800)
-                                    .padding(horizontal = 14.dp, vertical = 8.dp)
-                                    .heightIn(min = 48.dp)
+                                    .background(
+                                        if (isStreaming) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                        else MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                                    .heightIn(min = 40.dp)
                                     .testTag("provider_switcher_button"),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Icon(
                                     imageVector = if (isStreaming) Icons.Default.Lock else Icons.Default.KeyboardArrowDown,
                                     contentDescription = "Dropdown Indicator",
-                                    tint = if (isStreaming) Color.Gray else TealGlow,
+                                    tint = if (isStreaming) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.5f) else MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(16.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Model: ${activeProvider?.displayName ?: "None"}",
                                     fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isStreaming) Color.Gray else Color.White
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (isStreaming) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.5f) else MaterialTheme.colorScheme.onSurface
                                 )
 
                                 DropdownMenu(
                                     expanded = showProviderDropdown,
                                     onDismissRequest = { showProviderDropdown = false },
-                                    modifier = Modifier.background(Slate800)
+                                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                                 ) {
                                     providers.forEach { provider ->
                                         val isSelected = provider.id == selectedProviderId
@@ -275,13 +289,13 @@ fun ChatScreen(
                                                         Icon(
                                                             imageVector = Icons.Default.Check,
                                                             contentDescription = "Selected",
-                                                            tint = TealGlow,
+                                                            tint = MaterialTheme.colorScheme.primary,
                                                             modifier = Modifier.size(16.dp)
                                                         )
                                                     }
                                                     Text(
                                                         text = provider.displayName,
-                                                        color = if (isSelected) TealGlow else Color.White
+                                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                                     )
                                                 }
                                             },
@@ -291,9 +305,9 @@ fun ChatScreen(
                                             }
                                         )
                                     }
-                                    HorizontalDivider(color = Color(0xFF334155))
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                                     DropdownMenuItem(
-                                        text = { Text("＋ Manage Keys", color = TealGlow) },
+                                        text = { Text("＋ Manage Keys", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
                                         onClick = {
                                             onNavigateToProviders()
                                             showProviderDropdown = false
@@ -305,16 +319,16 @@ fun ChatScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "MenuToggle", tint = Color.White)
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = "MenuToggle", tint = MaterialTheme.colorScheme.onBackground)
                         }
                     },
                     actions = {
                         IconButton(onClick = { onNavigateToSettings() }) {
-                            Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                            Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onBackground)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Slate900
+                        containerColor = MaterialTheme.colorScheme.background
                     )
                 )
             },
@@ -331,45 +345,45 @@ fun ChatScreen(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
-                            .padding(24.dp),
+                            .padding(horizontal = 32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Surface(
                             modifier = Modifier
                                 .size(88.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF1E293B)),
-                            color = Color.Transparent
+                                .clip(CircleShape),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                textTagHelper("🔥", 36.sp)
+                                textTagHelper("✧", 42.sp)
                             }
                         }
-                        Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "BYOK OS AI Engine",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            text = "Intelligent AI Engine",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            text = "Connect custom API keys, enable local MCP tools, and deploy self-contained prompts local-first.",
-                            color = Color(0xFF94A3B8),
-                            fontSize = 13.sp,
+                            text = "Connect custom API keys, enable local MCP tools, and deploy self-contained prompts.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 14.sp,
                             textAlign = TextAlign.Center,
-                            lineHeight = 18.sp,
-                            modifier = Modifier.padding(top = 6.dp, bottom = 24.dp)
+                            lineHeight = 20.sp,
+                            modifier = Modifier.padding(top = 12.dp, bottom = 32.dp)
                         )
 
                         // Preset Prompts
-                        listOf("Explain Redux vs Riverpod", "Simulate read_file using MCP filesystem", "Check local database memory sync log").forEach { prompt ->
+                        listOf("Explain modern state management patterns", "Simulate read_file using MCP filesystem", "Synthesize memory context logic").forEach { prompt ->
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = Slate800),
-                                shape = RoundedCornerShape(10.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                                shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
+                                    .padding(vertical = 6.dp)
                                     .clickable {
                                         if (currentSessionId == null) {
                                             viewModel.createNewChat()
@@ -379,10 +393,10 @@ fun ChatScreen(
                             ) {
                                 Text(
                                     text = prompt,
-                                    fontSize = 13.sp,
-                                    color = TealGlow,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
                                 )
                             }
                         }
@@ -430,40 +444,40 @@ fun ChatScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Slate900)
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
-                    HorizontalDivider(color = Color(0xFF1E293B))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
                     if (isProcessingImage) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Slate800)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
                             CircularProgressIndicator(
-                                color = TealGlow,
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = "Evaluating optical assets...",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 13.sp,
                                 fontFamily = FontFamily.Monospace
                             )
                         }
-                        HorizontalDivider(color = Color(0xFF1E293B))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
 
                     if (attachedImageUri != null) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Slate800)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -478,15 +492,15 @@ fun ChatScreen(
                                     modifier = Modifier
                                         .size(48.dp)
                                         .clip(RoundedCornerShape(8.dp))
-                                        .border(1.dp, TealGlow, RoundedCornerShape(8.dp))
-                                        .background(Slate900),
+                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surface),
                                     contentScale = androidx.compose.ui.layout.ContentScale.Crop
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
                                     text = "Ready to upload: Image captured",
                                     fontSize = 13.sp,
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
@@ -497,12 +511,12 @@ fun ChatScreen(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Remove Attachment",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
-                        HorizontalDivider(color = Color(0xFF1E293B))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
 
                     Row(
@@ -520,7 +534,7 @@ fun ChatScreen(
                             Icon(
                                 imageVector = Icons.Default.AddCircle,
                                 contentDescription = "Attach Image",
-                                tint = TealGlow,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -528,15 +542,15 @@ fun ChatScreen(
                         OutlinedTextField(
                             value = chatInputText,
                             onValueChange = { chatInputText = it },
-                            placeholder = { Text("Ask something...", color = Color(0xFF475569)) },
+                            placeholder = { Text("Ask something...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                             maxLines = 4,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Slate800,
-                                unfocusedContainerColor = Slate800,
-                                focusedBorderColor = TealGlow,
-                                unfocusedBorderColor = Color(0xFF1E293B)
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = Color.Transparent
                             ),
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
@@ -555,13 +569,13 @@ fun ChatScreen(
                             },
                             modifier = Modifier
                                 .size(44.dp)
-                                .background(TealGlow, CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
                                 .testTag("send_button")
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = "Send",
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -616,7 +630,7 @@ fun MessageItem(
     ) {
         if (isSystem) {
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -624,7 +638,7 @@ fun MessageItem(
             ) {
                 Text(
                     text = message.content,
-                    color = Color(0xFF94A3B8),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     fontFamily = FontFamily.Monospace,
                     modifier = Modifier.padding(10.dp)
@@ -639,24 +653,24 @@ fun MessageItem(
                 "🔧 Tool output [$toolNameRaw]"
             }
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0x1A14B8A6)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(0.5.dp, TealGlow, RoundedCornerShape(10.dp))
+                    .border(0.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp))
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
                         text = displayName,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TealGlow,
+                        color = MaterialTheme.colorScheme.primary,
                         fontFamily = FontFamily.Monospace
                     )
                     Text(
                         text = message.content,
                         fontSize = 12.sp,
-                        color = Color(0xFFE5E7EB),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontFamily = FontFamily.Monospace,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -672,17 +686,17 @@ fun MessageItem(
                     Box(
                         modifier = Modifier
                             .size(28.dp)
-                            .background(Color(0xFF1E293B), CircleShape),
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("🤖", fontSize = 14.sp)
+                        Text("✦", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isUser) Teal600 else Slate800
+                        containerColor = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
                     ),
                     shape = RoundedCornerShape(
                         topStart = 16.dp,
@@ -704,7 +718,7 @@ fun MessageItem(
                                 text = displayCall,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TealGlow,
+                                color = MaterialTheme.colorScheme.primary,
                                 fontFamily = FontFamily.Monospace,
                                 modifier = Modifier.padding(bottom = 4.dp)
                             )
@@ -724,7 +738,7 @@ fun MessageItem(
                         if (imageUriStr != null) {
                             Card(
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Slate900),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 8.dp)
@@ -760,7 +774,7 @@ fun MessageItem(
                                 Text(
                                     text = "📋 Copy",
                                     fontSize = 11.sp,
-                                    color = Color(0xFF64748B),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.clickable { onCopyClick() }
                                 )
@@ -768,7 +782,7 @@ fun MessageItem(
                                 Text(
                                     text = "🔄 Retry",
                                     fontSize = 11.sp,
-                                    color = Color(0xFF64748B),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.clickable { onRetryClick() }
                                 )
@@ -791,15 +805,15 @@ fun MessageStreamBubble(content: String) {
         Box(
             modifier = Modifier
                 .size(28.dp)
-                .background(Color(0xFF1E293B), CircleShape),
+                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text("🤖", fontSize = 14.sp)
+            Text("✦", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(modifier = Modifier.width(8.dp))
 
         Card(
-            colors = CardDefaults.cardColors(containerColor = Slate800),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
@@ -813,9 +827,9 @@ fun MessageStreamBubble(content: String) {
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(modifier = Modifier.size(6.dp).background(Color(0xFF14B8A6), CircleShape))
-                    Box(modifier = Modifier.size(6.dp).background(Color(0x9914B8A6), CircleShape))
-                    Box(modifier = Modifier.size(6.dp).background(Color(0x3314B8A6), CircleShape))
+                    Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
+                    Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.primary.copy(alpha=0.6f), CircleShape))
+                    Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.primary.copy(alpha=0.2f), CircleShape))
                 }
             }
         }

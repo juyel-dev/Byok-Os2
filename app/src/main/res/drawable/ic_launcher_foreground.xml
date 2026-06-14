@@ -3,6 +3,6 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/byok_logo_1781380580254"
+        android:drawable="@drawable/byok_os_launcher_icon_1781455472227"
         android:gravity="center" />
 </layer-list>

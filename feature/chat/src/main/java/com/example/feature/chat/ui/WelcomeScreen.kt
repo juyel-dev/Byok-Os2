@@ -52,15 +52,7 @@ fun WelcomeScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF070A13),
-                        Color(0xFF101726),
-                        Color(0xFF0F121C)
-                    )
-                )
-            ),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         // Aesthetic ambient aura background
@@ -68,11 +60,11 @@ fun WelcomeScreen(
             modifier = Modifier
                 .size(320.dp)
                 .align(Alignment.TopCenter)
-                .offset(y = (-80).dp)
+                .offset(y = (-40).dp)
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            Color(0x1B14B8A6),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                             Color.Transparent
                         )
                     )
@@ -82,8 +74,8 @@ fun WelcomeScreen(
         AnimatedContent(
             targetState = onboardingStep,
             transitionSpec = {
-                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                    slideOutHorizontally { width -> -width } + fadeOut()
+                (slideInHorizontally { width -> width / 2 } + fadeIn()).togetherWith(
+                    slideOutHorizontally { width -> -width / 2 } + fadeOut()
                 )
             },
             label = "OnboardingTransition"
@@ -94,50 +86,49 @@ fun WelcomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(24.dp),
+                            .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Surface(
                             modifier = Modifier
-                                .size(110.dp)
-                                .clip(RoundedCornerShape(24.dp))
-                                .border(1.5.dp, TealGlow, RoundedCornerShape(24.dp))
-                                .background(Color(0x2214B8A6)),
-                            color = Color.Transparent,
+                                .size(96.dp)
+                                .clip(RoundedCornerShape(32.dp)),
+                            color = MaterialTheme.colorScheme.primaryContainer,
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text(
-                                    text = "🔑",
+                                    text = "✦",
                                     fontSize = 42.sp,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     textAlign = TextAlign.Center
                                 )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(28.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
 
                         Text(
                             text = "BYOK OS",
-                            fontSize = 38.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Black,
                             fontFamily = FontFamily.SansSerif,
-                            color = Color.White,
-                            lineHeight = 44.sp,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            letterSpacing = (-0.5).sp,
                             textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
                             text = "Bring Your Own Key\nAI Operating System",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Light,
-                            color = Color(0xFF94A3B8),
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 24.sp,
                             textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(48.dp))
+                        Spacer(modifier = Modifier.height(56.dp))
 
                         Button(
                             onClick = { onboardingStep = 2 },

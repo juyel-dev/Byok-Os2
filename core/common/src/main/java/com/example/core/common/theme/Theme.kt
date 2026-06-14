@@ -19,43 +19,43 @@ data class ByokColorScheme(
 fun getByokColors(themeMode: String): ByokColorScheme {
     return when (themeMode) {
         "LIGHT" -> ByokColorScheme(
-            background = Color(0xFFF8FAFC), // Slate 50
-            cardBackground = Color.White,
-            topBarBackground = Color(0xFFE2E8F0), // Slate 200
-            textPrimary = Color(0xFF0F172A), // Slate 900
-            textSecondary = Color(0xFF475569), // Slate 600
-            border = Color(0xFFCBD5E1), // Slate 300
-            primaryAccent = Teal600,
+            background = PremiumBackgroundDay, // Slate 50
+            cardBackground = PremiumSurfaceDay,
+            topBarBackground = PremiumBackgroundDay, // Slate 200
+            textPrimary = PremiumTextPrimaryDay, // Slate 900
+            textSecondary = PremiumTextSecondaryDay, // Slate 600
+            border = Color(0xFFE2E8F0), // Slate 300
+            primaryAccent = PremiumPrimaryDay,
             fieldBackground = Color(0xFFF1F5F9), // Slate 100
             textPlaceholder = Color(0xFF94A3B8), // Slate 400
-            drawerContainerColor = Color(0xFFE2E8F0),
+            drawerContainerColor = PremiumSurfaceDay,
             buttonBackground = Color(0xFFCBD5E1)
         )
         "SYSTEM SLATE" -> ByokColorScheme(
-            background = Color(0xFF0F172A), // Slate 900
-            cardBackground = Color(0xFF1E293B), // Slate 800
-            topBarBackground = Color(0xFF0F172A),
-            textPrimary = Color.White,
-            textSecondary = Color(0xFF94A3B8), // Slate 400
-            border = Color(0xFF334155), // Slate 700
-            primaryAccent = TealGlow,
-            fieldBackground = Color(0xFF1E293B),
+            background = PremiumBackgroundNight, // Slate 900
+            cardBackground = PremiumSurfaceNight, // Slate 800
+            topBarBackground = PremiumBackgroundNight,
+            textPrimary = PremiumTextPrimaryNight,
+            textSecondary = PremiumTextSecondaryNight, // Slate 400
+            border = PremiumSurfaceVariantNight, // Slate 700
+            primaryAccent = PremiumPrimaryNight,
+            fieldBackground = PremiumSurfaceVariantNight,
             textPlaceholder = Color(0xFF475569),
-            drawerContainerColor = Color(0xFF0F172A),
+            drawerContainerColor = PremiumBackgroundNight,
             buttonBackground = Color(0xFF334155)
         )
         else -> // "DARK"
         ByokColorScheme(
-            background = Color(0xFF090D16), // Dark Slate
-            cardBackground = Color(0xFF111827), // Slate 800-ish
-            topBarBackground = Color(0xFF090D16),
-            textPrimary = Color.White,
-            textSecondary = Color(0xFF8E9EB4),
-            border = Color(0xFF1E293B),
-            primaryAccent = TealGlow,
-            fieldBackground = Color(0xFF111827),
+            background = PremiumBackgroundNight, // Dark Slate
+            cardBackground = PremiumSurfaceNight, // Slate 800-ish
+            topBarBackground = PremiumBackgroundNight,
+            textPrimary = PremiumTextPrimaryNight,
+            textSecondary = PremiumTextSecondaryNight,
+            border = PremiumSurfaceVariantNight,
+            primaryAccent = PremiumPrimaryNight,
+            fieldBackground = PremiumSurfaceVariantNight,
             textPlaceholder = Color(0xFF475569),
-            drawerContainerColor = Color(0xFF090D16),
+            drawerContainerColor = PremiumBackgroundNight,
             buttonBackground = Color(0xFF1F2937)
         )
     }
