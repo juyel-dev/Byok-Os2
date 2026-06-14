@@ -49,13 +49,19 @@ android {
       if (base64File.exists() && !keystoreFile.exists()) {
         try {
           val encoded = base64File.readText().replace("\\s".toRegex(), "")
-          val decoded = Base64.getMimeDecoder().decode(encoded)
+          val decoded = Base64.getDecoder().decode(encoded)
           keystoreFile.writeBytes(decoded)
         } catch (e: Exception) {
           e.printStackTrace()
         }
       }
-      storeFile = keystoreFile
+      
+      if (keystoreFile.exists()) {
+        storeFile = keystoreFile
+      } else {
+        storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
+      }
+      
       storePassword = System.getenv("DEBUG_STORE_PASSWORD") ?: "android"
       keyAlias = System.getenv("DEBUG_KEY_ALIAS") ?: "androiddebugkey"
       keyPassword = System.getenv("DEBUG_KEY_PASSWORD") ?: "android"
