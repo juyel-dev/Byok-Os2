@@ -182,10 +182,7 @@ tasks.register("copyApkToRelease") {
       dest1Dir.mkdirs()
       srcFile.copyTo(File(dest1Dir, "app-debug.apk"), overwrite = true)
       
-      // 2. Copy to project root directory as app-debug.apk
-      srcFile.copyTo(rootProject.file("app-debug.apk"), overwrite = true)
-      
-      println("Successfully copied APK to BOTH .build-outputs/app-debug.apk and project root app-debug.apk!")
+      println("Successfully copied APK to .build-outputs/app-debug.apk!")
     } else {
       println("Source APK file not found at ${srcFile.absolutePath}")
     }
