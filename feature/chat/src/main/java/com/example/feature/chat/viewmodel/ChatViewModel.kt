@@ -50,8 +50,10 @@ class ChatViewModel(
     private val _activeMcpToolsCount = MutableStateFlow<Int?>(null)
     val activeMcpToolsCount: StateFlow<Int?> = _activeMcpToolsCount.asStateFlow()
 
-    private val _selectedProviderId = MutableStateFlow<String?>(null)
-    val selectedProviderId: StateFlow<String?> = _selectedProviderId.asStateFlow()
+    val selectedProviderId: StateFlow<String?> = repository.allProvidersFlow
+        .map { list -> list.firstOrNull { it.isActive }?.id ?: list.firstOrNull()?.id }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     // Streaming state
     private val _isStreaming = MutableStateFlow(false)
@@ -85,12 +87,6 @@ class ChatViewModel(
                     _currentSessionId.value = sessionList.first().id
                 }
             }
-        }
-        viewModelScope.launch {
-            // Synchronize active provider matching database state
-            val list = repository.getAllProviders()
-            val activePrv = list.firstOrNull { it.isActive } ?: list.firstOrNull()
-            _selectedProviderId.value = activePrv?.id
         }
         viewModelScope.launch {
             mcpServers.collectLatest { servers ->
@@ -162,7 +158,6 @@ class ChatViewModel(
     }
 
     fun selectProvider(providerId: String) {
-        _selectedProviderId.value = providerId
         viewModelScope.launch {
             val prvList = repository.getAllProviders()
             for (prv in prvList) {
@@ -173,7 +168,7 @@ class ChatViewModel(
 
     fun createNewChat() {
         viewModelScope.launch {
-            val provider = _selectedProviderId.value ?: "preset_openai"
+            val provider = selectedProviderId.value ?: "preset_openai"
             val newSession = ChatSessionModel(
                 id = java.util.UUID.randomUUID().toString(),
                 title = "New Conversation",
@@ -260,13 +255,25 @@ class ChatViewModel(
         val trimmedText = finalContent.trim()
         val textForTitle = text.trim()
         if (trimmedText.isBlank() && imageUri == null) return
-        val sessionId = _currentSessionId.value ?: return
 
         activeJob?.cancel()
         activeJob = viewModelScope.launch {
             try {
+                var sessionId = _currentSessionId.value
+                if (sessionId == null) {
+                    val providerId = selectedProviderId.value ?: "preset_openai"
+                    val newSession = ChatSessionModel(
+                        id = java.util.UUID.randomUUID().toString(),
+                        title = "New Conversation",
+                        providerId = providerId
+                    )
+                    repository.insertSession(newSession)
+                    _currentSessionId.value = newSession.id
+                    sessionId = newSession.id
+                }
+
                 val providerList = repository.getAllProviders()
-                val provider = providerList.firstOrNull { it.id == _selectedProviderId.value }
+                val provider = providerList.firstOrNull { it.id == selectedProviderId.value }
                 if (provider == null || !com.example.core.common.ProviderValidator.isConfigured(provider.encryptedApiKey)) {
                     showToast("Configure your proprietary API Key in model settings first!")
                     _navigationEvents.tryEmit(NavigationEvent.NavigateToProviders)
@@ -530,7 +537,7 @@ class ChatViewModel(
             }
 
             val providerList = repository.getAllProviders()
-            val provider = providerList.firstOrNull { it.id == _selectedProviderId.value }
+            val provider = providerList.firstOrNull { it.id == selectedProviderId.value }
             if (provider != null) {
                 runChatGenerationStream(sessionId, provider)
             }

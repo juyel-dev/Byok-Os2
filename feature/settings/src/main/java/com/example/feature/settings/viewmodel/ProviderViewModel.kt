@@ -21,21 +21,13 @@ class ProviderViewModel(
     val providers: StateFlow<List<LlmProviderModel>> = repository.allProvidersFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _selectedProviderId = MutableStateFlow<String?>(null)
-    val selectedProviderId: StateFlow<String?> = _selectedProviderId.asStateFlow()
-
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            val currentProvList = repository.getAllProviders()
-            if (currentProvList.isNotEmpty()) {
-                val activePrv = currentProvList.firstOrNull { it.isActive } ?: currentProvList.first()
-                _selectedProviderId.value = activePrv.id
-            }
-        }
-    }
+    val selectedProviderId: StateFlow<String?> = repository.allProvidersFlow
+        .map { list -> list.firstOrNull { it.isActive }?.id ?: list.firstOrNull()?.id }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun showToast(msg: String) {
         _toastMessage.value = msg
@@ -53,7 +45,6 @@ class ProviderViewModel(
     }
 
     fun selectProvider(providerId: String) {
-        _selectedProviderId.value = providerId
         viewModelScope.launch {
             val prvList = repository.getAllProviders()
             for (prv in prvList) {
@@ -149,8 +140,6 @@ class ProviderViewModel(
             val left = repository.getAllProviders()
             if (left.isNotEmpty()) {
                 selectProvider(left.first().id)
-            } else {
-                _selectedProviderId.value = null
             }
         }
     }
