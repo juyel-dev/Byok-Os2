@@ -29,6 +29,10 @@ class ProviderViewModel(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    val themeMode: StateFlow<String> = flow {
+        emit(repository.getSetting("theme_mode", "DARK"))
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, "DARK")
+
     fun showToast(msg: String) {
         _toastMessage.value = msg
         try {

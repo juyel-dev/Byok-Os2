@@ -1,6 +1,7 @@
 package com.example.feature.chat.ui
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -36,6 +37,8 @@ fun WelcomeScreen(
     modifier: Modifier = Modifier,
     onOnboardingComplete: () -> Unit = {}
 ) {
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = com.example.core.common.theme.getByokColors(themeMode)
     var onboardingStep by remember { mutableStateOf(1) } // 1: Welcome message, 2: Insert provider state
 
     // Form states
@@ -52,7 +55,7 @@ fun WelcomeScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(colors.background),
         contentAlignment = Alignment.Center
     ) {
         // Aesthetic ambient aura background
@@ -64,7 +67,7 @@ fun WelcomeScreen(
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                            colors.primaryAccent.copy(alpha = 0.15f),
                             Color.Transparent
                         )
                     )
@@ -113,7 +116,7 @@ fun WelcomeScreen(
                             fontSize = 32.sp,
                             fontWeight = FontWeight.Black,
                             fontFamily = FontFamily.SansSerif,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = colors.textPrimary,
                             letterSpacing = (-0.5).sp,
                             textAlign = TextAlign.Center
                         )
@@ -123,7 +126,7 @@ fun WelcomeScreen(
                         Text(
                             text = "Bring Your Own Key\nAI Operating System",
                             fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = colors.textSecondary,
                             lineHeight = 24.sp,
                             textAlign = TextAlign.Center
                         )
@@ -132,7 +135,7 @@ fun WelcomeScreen(
 
                         Button(
                             onClick = { onboardingStep = 2 },
-                            colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+                            colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -166,7 +169,7 @@ fun WelcomeScreen(
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Normal,
                             fontFamily = FontFamily.Monospace,
-                            color = Color(0xFF64748B),
+                            color = colors.textSecondary,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -187,12 +190,12 @@ fun WelcomeScreen(
                             text = "Add Your First Provider",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = colors.textPrimary
                         )
                         Text(
                             text = "Configure your proprietary LLM credentials here. We never store or log your personal access tokens.",
                             fontSize = 13.sp,
-                            color = Color(0xFF94A3B8),
+                            color = colors.textSecondary,
                             lineHeight = 18.sp,
                             modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
                         )
@@ -201,19 +204,19 @@ fun WelcomeScreen(
                             text = "Display Name (optional)",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF14B8A6)
+                            color = colors.primaryAccent
                         )
                         OutlinedTextField(
                             value = displayName,
                             onValueChange = { displayName = it },
-                            placeholder = { Text("e.g. My Provider", color = Color(0xFF64748B)) },
+                            placeholder = { Text("e.g. My Provider", color = colors.textPlaceholder) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color(0xFF101726),
-                                unfocusedContainerColor = Color(0xFF101726),
-                                focusedBorderColor = TealGlow,
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedTextColor = colors.textPrimary,
+                                unfocusedTextColor = colors.textPrimary,
+                                focusedContainerColor = colors.fieldBackground,
+                                unfocusedContainerColor = colors.fieldBackground,
+                                focusedBorderColor = colors.primaryAccent,
+                                unfocusedBorderColor = colors.border
                             ),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
@@ -227,18 +230,19 @@ fun WelcomeScreen(
                             text = "Base URL *",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF14B8A6)
+                            color = colors.primaryAccent
                         )
                         OutlinedTextField(
                             value = baseUrl,
                             onValueChange = { baseUrl = it },
+                            placeholder = { Text("https://api.openai.com/v1", color = colors.textPlaceholder) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color(0xFF101726),
-                                unfocusedContainerColor = Color(0xFF101726),
-                                focusedBorderColor = TealGlow,
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedTextColor = colors.textPrimary,
+                                unfocusedTextColor = colors.textPrimary,
+                                focusedContainerColor = colors.fieldBackground,
+                                unfocusedContainerColor = colors.fieldBackground,
+                                focusedBorderColor = colors.primaryAccent,
+                                unfocusedBorderColor = colors.border
                             ),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
@@ -252,21 +256,21 @@ fun WelcomeScreen(
                             text = "API Key *",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF14B8A6)
+                            color = colors.primaryAccent
                         )
                         OutlinedTextField(
                             value = apiKey,
                             onValueChange = { apiKey = it },
-                            placeholder = { Text("Secret proprietary sk-key...", color = Color(0xFF64748B)) },
+                            placeholder = { Text("Secret proprietary sk-key...", color = colors.textPlaceholder) },
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color(0xFF101726),
-                                unfocusedContainerColor = Color(0xFF101726),
-                                focusedBorderColor = TealGlow,
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedTextColor = colors.textPrimary,
+                                unfocusedTextColor = colors.textPrimary,
+                                focusedContainerColor = colors.fieldBackground,
+                                unfocusedContainerColor = colors.fieldBackground,
+                                focusedBorderColor = colors.primaryAccent,
+                                unfocusedBorderColor = colors.border
                             ),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
@@ -280,18 +284,19 @@ fun WelcomeScreen(
                             text = "Model Name *",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF14B8A6)
+                            color = colors.primaryAccent
                         )
                         OutlinedTextField(
                             value = modelName,
                             onValueChange = { modelName = it },
+                            placeholder = { Text("gpt-4o", color = colors.textPlaceholder) },
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color(0xFF101726),
-                                unfocusedContainerColor = Color(0xFF101726),
-                                focusedBorderColor = TealGlow,
-                                unfocusedBorderColor = Color(0xFF334155)
+                                focusedTextColor = colors.textPrimary,
+                                unfocusedTextColor = colors.textPrimary,
+                                focusedContainerColor = colors.fieldBackground,
+                                unfocusedContainerColor = colors.fieldBackground,
+                                focusedBorderColor = colors.primaryAccent,
+                                unfocusedBorderColor = colors.border
                             ),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
@@ -302,12 +307,12 @@ fun WelcomeScreen(
                         // Connection tester log banner
                         testStatusMessage?.let { status ->
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = Color(0x331E293B)),
+                                colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 12.dp)
-                                    .border(0.5.dp, if (status.startsWith("Success")) EmeraldGlow else Color(0xFFEF4444), RoundedCornerShape(12.dp))
+                                    .border(1.dp, if (status.startsWith("Success")) EmeraldGlow else Color(0xFFEF4444), RoundedCornerShape(12.dp))
                             ) {
                                 Row(
                                     modifier = Modifier.padding(14.dp),
@@ -322,7 +327,7 @@ fun WelcomeScreen(
                                         text = status,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = if (status.startsWith("Success")) EmeraldGlow else Color(0xFFFDA4AF)
+                                        color = if (status.startsWith("Success")) EmeraldGlow else Color(0xFFEF4444)
                                     )
                                 }
                             }
@@ -361,12 +366,14 @@ fun WelcomeScreen(
                                 },
                                 shape = RoundedCornerShape(12.dp),
                                 enabled = !isTesting,
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.primaryAccent),
+                                border = BorderStroke(1.dp, colors.border),
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(48.dp)
                             ) {
                                 if (isTesting) {
-                                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = colors.primaryAccent)
                                 } else {
                                     Text("Test Endpoint", fontSize = 14.sp)
                                 }
@@ -385,7 +392,7 @@ fun WelcomeScreen(
                                     }
                                 },
                                 shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+                                colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                                 modifier = Modifier
                                     .weight(1.2f)
                                     .height(48.dp)
@@ -394,8 +401,8 @@ fun WelcomeScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text("Save & Continue", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = " arrow", modifier = Modifier.size(16.dp))
+                                    Text("Save & Continue", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = " arrow", modifier = Modifier.size(16.dp), tint = Color.White)
                                 }
                             }
                         }

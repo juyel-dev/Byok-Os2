@@ -26,6 +26,7 @@ import com.example.feature.chat.viewmodel.AgentViewModel
 @Composable
 fun AgentScreen(
     viewModel: AgentViewModel,
+    themeModeStr: String = "DARK",
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {}
 ) {
@@ -37,6 +38,7 @@ fun AgentScreen(
     val paused by viewModel.agentPaused.collectAsState()
 
     var goalInput by remember { mutableStateOf("") }
+    val colors = getByokColors(themeModeStr)
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -47,7 +49,7 @@ fun AgentScreen(
                         text = "Autonomous ReAct Agent",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = colors.textPrimary
                     )
                 },
                 navigationIcon = {
@@ -55,16 +57,16 @@ fun AgentScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White
+                            tint = colors.textPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Slate900
+                    containerColor = colors.background
                 )
             )
         },
-        containerColor = Slate900
+        containerColor = colors.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -79,27 +81,27 @@ fun AgentScreen(
                     text = "Configure Autonomous Agent Goal",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = colors.textPrimary
                 )
                 Text(
                     text = "The agent executes a continuous Thinking-Action ReAct loop, automatically discovering and calling registered MCP local filesystem, research or weather tools sequentially until the target boundary is cleared.",
                     fontSize = 13.sp,
-                    color = Color(0xFF94A3B8),
+                    color = colors.textSecondary,
                     lineHeight = 18.sp
                 )
 
                 OutlinedTextField(
                     value = goalInput,
                     onValueChange = { goalInput = it },
-                    placeholder = { Text("e.g. Research Kotlin news and write data summary to a file", color = Color(0xFF475569)) },
+                    placeholder = { Text("e.g. Research Kotlin news and write data summary to a file", color = colors.textPlaceholder) },
                     minLines = 3,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Slate800,
-                        unfocusedContainerColor = Slate800,
-                        focusedBorderColor = TealGlow,
-                        unfocusedBorderColor = Color(0xFF334155)
+                        focusedTextColor = colors.textPrimary,
+                        unfocusedTextColor = colors.textPrimary,
+                        focusedContainerColor = colors.fieldBackground,
+                        unfocusedContainerColor = colors.fieldBackground,
+                        focusedBorderColor = colors.primaryAccent,
+                        unfocusedBorderColor = colors.border
                     ),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth()
@@ -111,7 +113,7 @@ fun AgentScreen(
                         viewModel.triggerAgentGoal(goalInput)
                         goalInput = ""
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+                    colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -122,28 +124,28 @@ fun AgentScreen(
             } else {
                 // Active Execution Space
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = Slate800),
+                    colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(16.dp))
+                        .border(1.dp, colors.border, RoundedCornerShape(16.dp))
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "Goal Statement",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TealGlow
+                            color = colors.primaryAccent
                         )
                         Text(
                             text = goal,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.White,
+                            color = colors.textPrimary,
                             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
                         )
 
-                        HorizontalDivider(color = Color(0xFF1E293B))
+                        HorizontalDivider(color = colors.border)
 
                         Row(
                             modifier = Modifier
@@ -153,21 +155,21 @@ fun AgentScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("AGENT STATUS", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                                Text("AGENT STATUS", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = colors.textPlaceholder)
                                 Text(
                                     text = if (paused) "Paused" else "Executing: $status",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (paused) CoralRed else TealGlow
+                                    color = if (paused) CoralRed else colors.primaryAccent
                                 )
                             }
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("STEPS EXECUTED", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                                Text("STEPS EXECUTED", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = colors.textPlaceholder)
                                 Text(
                                     text = "$stepsCount / 5 max",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = colors.textPrimary
                                 )
                             }
                         }
@@ -179,10 +181,10 @@ fun AgentScreen(
                         ) {
                             Button(
                                 onClick = { viewModel.pauseAgent() },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF334155)),
+                                colors = ButtonDefaults.buttonColors(containerColor = colors.buttonBackground),
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text(if (paused) "▶️ Resume" else "⏸️ Pause", color = Color.White)
+                                Text(if (paused) "▶️ Resume" else "⏸️ Pause", color = colors.textPrimary)
                             }
 
                             Button(
@@ -200,7 +202,7 @@ fun AgentScreen(
                     text = "Agent Execution Logs Timeline",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = colors.textPrimary,
                     modifier = Modifier.padding(top = 8.dp)
                 )
 
@@ -208,18 +210,18 @@ fun AgentScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .background(Color(0xFF0F172A), RoundedCornerShape(12.dp))
-                        .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp)),
+                        .background(colors.background, RoundedCornerShape(12.dp))
+                        .border(1.dp, colors.border, RoundedCornerShape(12.dp)),
                     contentPadding = PaddingValues(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(logs) { log ->
                         val isFlowIn = log.startsWith("➡️") || log.startsWith("[Step")
                         val textColor = when {
-                            log.startsWith("🎯") -> TealGlow
+                            log.startsWith("🎯") -> colors.primaryAccent
                             log.startsWith("⏸️") || log.startsWith("🛑") -> CoralRed
                             log.startsWith("➡️ Output:") -> EmeraldGlow
-                            else -> Color(0xFF94A3B8)
+                            else -> colors.textSecondary
                         }
 
                         Column(
@@ -242,7 +244,7 @@ fun AgentScreen(
                 if (status == "Completed" || status == "Stopped") {
                     Button(
                         onClick = { viewModel.triggerAgentGoal("Restart") /* Reset State */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {

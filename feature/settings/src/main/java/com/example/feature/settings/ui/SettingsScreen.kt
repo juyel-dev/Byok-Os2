@@ -217,6 +217,8 @@ fun SettingsOptionCard(
 
 @Composable
 fun CloudSyncPage(viewModel: SettingsViewModel) {
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
     val enabled by viewModel.supabaseSyncEnabled.collectAsState()
     val rawUrl by viewModel.supabaseUrl.collectAsState()
     val rawServiceRoleKey by viewModel.supabaseServiceRoleKey.collectAsState()
@@ -244,66 +246,66 @@ fun CloudSyncPage(viewModel: SettingsViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Enable Cloud Synchronize", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("Secure backup with custom Supabase", fontSize = 12.sp, color = Color(0xFF94A3B8))
+                Text("Enable Cloud Synchronize", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+                Text("Secure backup with custom Supabase", fontSize = 12.sp, color = colors.textSecondary)
             }
             Switch(
                 checked = enabled,
                 onCheckedChange = { viewModel.toggleSupabaseSync() },
-                colors = SwitchDefaults.colors(checkedThumbColor = TealGlow, checkedTrackColor = Color(0x3314B8A6))
+                colors = SwitchDefaults.colors(checkedThumbColor = colors.primaryAccent, checkedTrackColor = colors.primaryAccent.copy(alpha = 0.2f))
             )
         }
 
-        HorizontalDivider(color = Color(0xFF1E293B))
+        HorizontalDivider(color = colors.border)
 
-        Text("Project URL *", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TealGlow)
+        Text("Project URL *", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = colors.primaryAccent)
         OutlinedTextField(
             value = urlInput,
             onValueChange = { urlInput = it },
-            placeholder = { Text("https://your-project.supabase.co", color = Color(0xFF64748B)) },
+            placeholder = { Text("https://your-project.supabase.co", color = colors.textPlaceholder) },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Slate800,
-                unfocusedContainerColor = Slate800,
-                focusedBorderColor = TealGlow,
-                unfocusedBorderColor = Color(0xFF334155)
+                focusedTextColor = colors.textPrimary,
+                unfocusedTextColor = colors.textPrimary,
+                focusedContainerColor = colors.fieldBackground,
+                unfocusedContainerColor = colors.fieldBackground,
+                focusedBorderColor = colors.primaryAccent,
+                unfocusedBorderColor = colors.border
             ),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         )
 
-        Text("Service Role Key *", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TealGlow)
+        Text("Service Role Key *", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = colors.primaryAccent)
         OutlinedTextField(
             value = serviceRoleKeyInput,
             onValueChange = { serviceRoleKeyInput = it },
             visualTransformation = PasswordVisualTransformation(),
-            placeholder = { Text("your-supabase-service-role-key", color = Color(0xFF64748B)) },
+            placeholder = { Text("your-supabase-service-role-key", color = colors.textPlaceholder) },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Slate800,
-                unfocusedContainerColor = Slate800,
-                focusedBorderColor = TealGlow,
-                unfocusedBorderColor = Color(0xFF334155)
+                focusedTextColor = colors.textPrimary,
+                unfocusedTextColor = colors.textPrimary,
+                focusedContainerColor = colors.fieldBackground,
+                unfocusedContainerColor = colors.fieldBackground,
+                focusedBorderColor = colors.primaryAccent,
+                unfocusedBorderColor = colors.border
             ),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         )
 
-        Text("Personal Access Token *", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TealGlow)
+        Text("Personal Access Token *", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = colors.primaryAccent)
         OutlinedTextField(
             value = patInput,
             onValueChange = { patInput = it },
             visualTransformation = PasswordVisualTransformation(),
-            placeholder = { Text("sbp_your_secret_pat_key", color = Color(0xFF64748B)) },
+            placeholder = { Text("sbp_your_secret_pat_key", color = colors.textPlaceholder) },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Slate800,
-                unfocusedContainerColor = Slate800,
-                focusedBorderColor = TealGlow,
-                unfocusedBorderColor = Color(0xFF334155)
+                focusedTextColor = colors.textPrimary,
+                unfocusedTextColor = colors.textPrimary,
+                focusedContainerColor = colors.fieldBackground,
+                unfocusedContainerColor = colors.fieldBackground,
+                focusedBorderColor = colors.primaryAccent,
+                unfocusedBorderColor = colors.border
             ),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
@@ -315,7 +317,7 @@ fun CloudSyncPage(viewModel: SettingsViewModel) {
         ) {
             Button(
                 onClick = { viewModel.triggerSupabaseSetup(urlInput, serviceRoleKeyInput, patInput) },
-                colors = ButtonDefaults.buttonColors(containerColor = Teal600),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.weight(1f)
             ) {
@@ -333,13 +335,13 @@ fun CloudSyncPage(viewModel: SettingsViewModel) {
         }
 
         if (logsList.isNotEmpty()) {
-            Text("Setup Migration Logs", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Setup Migration Logs", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                    .border(1.dp, colors.border, RoundedCornerShape(12.dp))
             ) {
                 Column(
                     modifier = Modifier.padding(14.dp),
@@ -349,7 +351,7 @@ fun CloudSyncPage(viewModel: SettingsViewModel) {
                         val logColor = when {
                             log.startsWith("SUCCESS") || log.startsWith("DONE") -> EmeraldGlow
                             log.startsWith("ERROR") -> CoralRed
-                            else -> Color(0xFF94A3B8)
+                            else -> colors.textSecondary
                         }
                         Text(
                             text = log,
@@ -369,6 +371,8 @@ fun CloudSyncPage(viewModel: SettingsViewModel) {
 fun ProvidersPage(viewModel: ProviderViewModel) {
     val providers by viewModel.providers.collectAsState()
     val activeProviderId by viewModel.selectedProviderId.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
 
     var showForm by remember { mutableStateOf(false) }
 
@@ -389,56 +393,84 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Model Keys & Providers", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Model Keys & Providers", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
             IconButton(onClick = { showForm = !showForm }) {
-                Icon(imageVector = if (showForm) Icons.Default.Close else Icons.Default.Add, contentDescription = "Add", tint = TealGlow)
+                Icon(imageVector = if (showForm) Icons.Default.Close else Icons.Default.Add, contentDescription = "Add", tint = colors.primaryAccent)
             }
         }
 
         AnimatedVisibility(visible = showForm) {
             Card(
-                colors = CardDefaults.cardColors(containerColor = Slate800),
+                colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(16.dp))
+                    .border(1.dp, colors.border, RoundedCornerShape(16.dp))
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Register Model Endpoint", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("Register Model Endpoint", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
 
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Display Label") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                        label = { Text("Display Label", color = colors.textSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = colors.textPrimary,
+                            unfocusedTextColor = colors.textPrimary,
+                            focusedContainerColor = colors.fieldBackground,
+                            unfocusedContainerColor = colors.fieldBackground,
+                            focusedBorderColor = colors.primaryAccent,
+                            unfocusedBorderColor = colors.border
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = url,
                         onValueChange = { url = it },
-                        label = { Text("Base API Endpoint URL*") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                        label = { Text("Base API Endpoint URL*", color = colors.textSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = colors.textPrimary,
+                            unfocusedTextColor = colors.textPrimary,
+                            focusedContainerColor = colors.fieldBackground,
+                            unfocusedContainerColor = colors.fieldBackground,
+                            focusedBorderColor = colors.primaryAccent,
+                            unfocusedBorderColor = colors.border
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = key,
                         onValueChange = { key = it },
-                        label = { Text("Bearer Secret Key*") },
+                        label = { Text("Bearer Secret Key*", color = colors.textSecondary) },
                         visualTransformation = PasswordVisualTransformation(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = colors.textPrimary,
+                            unfocusedTextColor = colors.textPrimary,
+                            focusedContainerColor = colors.fieldBackground,
+                            unfocusedContainerColor = colors.fieldBackground,
+                            focusedBorderColor = colors.primaryAccent,
+                            unfocusedBorderColor = colors.border
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = model,
                         onValueChange = { model = it },
-                        label = { Text("Core Model Name*") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                        label = { Text("Core Model Name*", color = colors.textSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = colors.textPrimary,
+                            unfocusedTextColor = colors.textPrimary,
+                            focusedContainerColor = colors.fieldBackground,
+                            unfocusedContainerColor = colors.fieldBackground,
+                            focusedBorderColor = colors.primaryAccent,
+                            unfocusedBorderColor = colors.border
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -454,7 +486,7 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
                                 showForm = false
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Add connection", fontWeight = FontWeight.Bold, color = Color.White)
@@ -476,13 +508,13 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
             val coroutineScope = rememberCoroutineScope()
 
             Card(
-                colors = CardDefaults.cardColors(containerColor = if (isActive) Color(0x2214B8A6) else Slate800),
+                colors = CardDefaults.cardColors(containerColor = if (isActive) colors.primaryAccent.copy(alpha = 0.15f) else colors.cardBackground),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { viewModel.selectProvider(provider.id) }
                     .border(
                         1.dp,
-                        if (isUnconfigured) CoralRed else if (isActive) TealGlow else Color(0xFF1E293B),
+                        if (isUnconfigured) CoralRed else if (isActive) colors.primaryAccent else colors.border,
                         RoundedCornerShape(14.dp)
                     ),
                 shape = RoundedCornerShape(14.dp)
@@ -495,12 +527,12 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
                         Box(
                             modifier = Modifier
                                 .size(10.dp)
-                                .background(if (isUnconfigured) CoralRed else if (isActive) TealGlow else Color(0xFF475569), RoundedCornerShape(5.dp))
+                                .background(if (isUnconfigured) CoralRed else if (isActive) colors.primaryAccent else colors.textPlaceholder, RoundedCornerShape(5.dp))
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(provider.displayName, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(provider.displayName, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 if (isUnconfigured) {
                                     Box(
@@ -513,22 +545,22 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
                                 } else {
                                     Box(
                                         modifier = Modifier
-                                            .background(TealGlow.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                            .background(colors.primaryAccent.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
-                                        Text("READY", fontSize = 9.sp, color = TealGlow, fontWeight = FontWeight.Bold)
+                                        Text("READY", fontSize = 9.sp, color = colors.primaryAccent, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
-                            Text(provider.baseUrl, fontSize = 11.sp, color = Color(0xFF64748B))
-                            Text("Model: ${provider.modelName}", fontSize = 12.sp, color = Color(0xFF94A3B8))
+                            Text(provider.baseUrl, fontSize = 11.sp, color = colors.textSecondary)
+                            Text("Model: ${provider.modelName}", fontSize = 12.sp, color = colors.textSecondary)
                         }
                         Row {
                             IconButton(onClick = { showEditDetailsForm = !showEditDetailsForm }) {
-                                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Key", tint = Color(0xFF64748B))
+                                Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Key", tint = colors.textSecondary)
                             }
                             IconButton(onClick = { viewModel.deleteProvider(provider.id) }) {
-                                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFF64748B))
+                                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = colors.textSecondary)
                             }
                         }
                     }
@@ -537,48 +569,76 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF0F172A))
+                                .background(colors.background)
                                 .padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Text(
                                 text = if (isUnconfigured) "⚠️ This preset requires an API Key before it can be used. Please configure it below:" else "Edit Endpoint & Model Parameters:",
                                 fontSize = 12.sp,
-                                color = if (isUnconfigured) CoralRed else Color.White,
+                                color = if (isUnconfigured) CoralRed else colors.textPrimary,
                                 fontWeight = FontWeight.Bold
                             )
 
                             OutlinedTextField(
                                 value = editName,
                                 onValueChange = { editName = it },
-                                label = { Text("Display Label") },
-                                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                                label = { Text("Display Label", color = colors.textSecondary) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = colors.textPrimary,
+                                    unfocusedTextColor = colors.textPrimary,
+                                    focusedContainerColor = colors.fieldBackground,
+                                    unfocusedContainerColor = colors.fieldBackground,
+                                    focusedBorderColor = colors.primaryAccent,
+                                    unfocusedBorderColor = colors.border
+                                ),
                                 modifier = Modifier.fillMaxWidth()
                             )
 
                             OutlinedTextField(
                                 value = editUrl,
                                 onValueChange = { editUrl = it },
-                                label = { Text("Base API Endpoint URL*") },
-                                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                                label = { Text("Base API Endpoint URL*", color = colors.textSecondary) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = colors.textPrimary,
+                                    unfocusedTextColor = colors.textPrimary,
+                                    focusedContainerColor = colors.fieldBackground,
+                                    unfocusedContainerColor = colors.fieldBackground,
+                                    focusedBorderColor = colors.primaryAccent,
+                                    unfocusedBorderColor = colors.border
+                                ),
                                 modifier = Modifier.fillMaxWidth()
                             )
 
                             OutlinedTextField(
                                 value = editModel,
                                 onValueChange = { editModel = it },
-                                label = { Text("Core Model Name*") },
-                                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                                label = { Text("Core Model Name*", color = colors.textSecondary) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = colors.textPrimary,
+                                    unfocusedTextColor = colors.textPrimary,
+                                    focusedContainerColor = colors.fieldBackground,
+                                    unfocusedContainerColor = colors.fieldBackground,
+                                    focusedBorderColor = colors.primaryAccent,
+                                    unfocusedBorderColor = colors.border
+                                ),
                                 modifier = Modifier.fillMaxWidth()
                             )
 
                             OutlinedTextField(
                                 value = editKey,
                                 onValueChange = { editKey = it },
-                                label = { Text("Bearer Secret Key*") },
-                                placeholder = { Text("Enter API key...") },
+                                label = { Text("Bearer Secret Key*", color = colors.textSecondary) },
+                                placeholder = { Text("Enter API key...", color = colors.textPlaceholder) },
                                 visualTransformation = PasswordVisualTransformation(),
-                                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = colors.textPrimary,
+                                    unfocusedTextColor = colors.textPrimary,
+                                    focusedContainerColor = colors.fieldBackground,
+                                    unfocusedContainerColor = colors.fieldBackground,
+                                    focusedBorderColor = colors.primaryAccent,
+                                    unfocusedBorderColor = colors.border
+                                ),
                                 modifier = Modifier.fillMaxWidth()
                             )
 
@@ -594,7 +654,7 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
+                              ) {
                                 Button(
                                     onClick = {
                                         if (editUrl.isBlank() || editKey.isBlank() || editModel.isBlank()) {
@@ -616,10 +676,10 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
                                             )
                                         }
                                     },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF334155)),
+                                    colors = ButtonDefaults.buttonColors(containerColor = colors.buttonBackground),
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text("Test", fontWeight = FontWeight.Bold)
+                                    Text("Test", fontWeight = FontWeight.Bold, color = colors.textPrimary)
                                 }
 
                                 Button(
@@ -632,10 +692,10 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
                                             showEditDetailsForm = false
                                         }
                                     },
-                                    colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+                                    colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                                     modifier = Modifier.weight(1.5f)
                                 ) {
-                                    Text("Save Changes", fontWeight = FontWeight.Bold)
+                                    Text("Save Changes", fontWeight = FontWeight.Bold, color = Color.White)
                                 }
                             }
                         }
@@ -649,6 +709,8 @@ fun ProvidersPage(viewModel: ProviderViewModel) {
 @Composable
 fun McpManagerPage(viewModel: McpViewModel) {
     val serversList by viewModel.mcpServers.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
 
     var showForm by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
@@ -668,41 +730,55 @@ fun McpManagerPage(viewModel: McpViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Model Context Protocol (MCP)", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("Connect tools from peripheral endpoints", fontSize = 12.sp, color = Color(0xFF94A3B8))
+                Text("Model Context Protocol (MCP)", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+                Text("Connect tools from peripheral endpoints", fontSize = 12.sp, color = colors.textSecondary)
             }
             IconButton(onClick = { showForm = !showForm }) {
-                Icon(imageVector = if (showForm) Icons.Default.Close else Icons.Default.Add, contentDescription = "Add", tint = TealGlow)
+                Icon(imageVector = if (showForm) Icons.Default.Close else Icons.Default.Add, contentDescription = "Add", tint = colors.primaryAccent)
             }
         }
 
         AnimatedVisibility(visible = showForm) {
             Card(
-                colors = CardDefaults.cardColors(containerColor = Slate800),
+                colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(16.dp))
+                    .border(1.dp, colors.border, RoundedCornerShape(16.dp))
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Configure new MCP Host", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("Configure new MCP Host", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
 
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Server Name") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                        label = { Text("Server Name", color = colors.textSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = colors.textPrimary,
+                            unfocusedTextColor = colors.textPrimary,
+                            focusedContainerColor = colors.fieldBackground,
+                            unfocusedContainerColor = colors.fieldBackground,
+                            focusedBorderColor = colors.primaryAccent,
+                            unfocusedBorderColor = colors.border
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     OutlinedTextField(
                         value = endpoint,
                         onValueChange = { endpoint = it },
-                        label = { Text("Server Base Endpoint URL") },
-                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                        label = { Text("Server Base Endpoint URL", color = colors.textSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = colors.textPrimary,
+                            unfocusedTextColor = colors.textPrimary,
+                            focusedContainerColor = colors.fieldBackground,
+                            unfocusedContainerColor = colors.fieldBackground,
+                            focusedBorderColor = colors.primaryAccent,
+                            unfocusedBorderColor = colors.border
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -712,18 +788,18 @@ fun McpManagerPage(viewModel: McpViewModel) {
                     ) {
                         Button(
                             onClick = { transport = "HTTP" },
-                            colors = ButtonDefaults.buttonColors(containerColor = if (transport == "HTTP") TealGlow else Slate700),
+                            colors = ButtonDefaults.buttonColors(containerColor = if (transport == "HTTP") colors.primaryAccent else colors.buttonBackground),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("HTTP REST", color = Color.White)
+                            Text("HTTP REST", color = if (transport == "HTTP") Color.White else colors.textPrimary)
                         }
 
                         Button(
                             onClick = { transport = "SSE" },
-                            colors = ButtonDefaults.buttonColors(containerColor = if (transport == "SSE") TealGlow else Slate700),
+                            colors = ButtonDefaults.buttonColors(containerColor = if (transport == "SSE") colors.primaryAccent else colors.buttonBackground),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("SSE stream", color = Color.White)
+                            Text("SSE stream", color = if (transport == "SSE") Color.White else colors.textPrimary)
                         }
                     }
 
@@ -738,7 +814,7 @@ fun McpManagerPage(viewModel: McpViewModel) {
                             endpoint = ""
                             showForm = false
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Add MCP Server", fontWeight = FontWeight.Bold, color = Color.White)
@@ -752,7 +828,7 @@ fun McpManagerPage(viewModel: McpViewModel) {
             val health = healths[server.id] ?: com.example.core.data.service.McpHealthStatus.HEALTHY
 
             val statusColor = if (!server.isEnabled) {
-                Color(0xFF64748B)
+                colors.textPlaceholder
             } else {
                 when (health) {
                     com.example.core.data.service.McpHealthStatus.HEALTHY -> EmeraldGlow
@@ -762,11 +838,11 @@ fun McpManagerPage(viewModel: McpViewModel) {
             }
 
             Card(
-                colors = CardDefaults.cardColors(containerColor = Slate800),
+                colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(14.dp))
+                    .border(1.dp, colors.border, RoundedCornerShape(14.dp))
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -776,17 +852,17 @@ fun McpManagerPage(viewModel: McpViewModel) {
                                 .background(statusColor, RoundedCornerShape(6.dp))
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(server.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.weight(1f))
+                        Text(server.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary, modifier = Modifier.weight(1f))
                         
                         Switch(
                             checked = server.isEnabled,
                             onCheckedChange = { viewModel.toggleMcpServer(server) },
-                            colors = SwitchDefaults.colors(checkedThumbColor = EmeraldGlow)
+                            colors = SwitchDefaults.colors(checkedThumbColor = colors.primaryAccent)
                         )
                     }
 
-                    Text("Endpoint: ${server.endpoint}", fontSize = 12.sp, color = Color(0xFF94A3B8), modifier = Modifier.padding(top = 4.dp))
-                    Text("Transport Mode: ${server.transport}", fontSize = 11.sp, fontFamily = FontFamily.Monospace, color = Color(0xFF64748B))
+                    Text("Endpoint: ${server.endpoint}", fontSize = 12.sp, color = colors.textSecondary, modifier = Modifier.padding(top = 4.dp))
+                    Text("Transport Mode: ${server.transport}", fontSize = 11.sp, fontFamily = FontFamily.Monospace, color = colors.textPlaceholder)
 
                     Row(
                         modifier = Modifier
@@ -817,7 +893,7 @@ fun McpManagerPage(viewModel: McpViewModel) {
                         }
 
                         val healthTextColor = if (!server.isEnabled) {
-                            Color(0xFF64748B)
+                            colors.textPlaceholder
                         } else {
                             when (health) {
                                 com.example.core.data.service.McpHealthStatus.HEALTHY -> EmeraldGlow
@@ -833,20 +909,20 @@ fun McpManagerPage(viewModel: McpViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                         IconButton(onClick = { viewModel.deleteMcpServer(server.id) }) {
-                            Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFF64748B), modifier = Modifier.size(18.dp))
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = colors.textPlaceholder, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
             }
         }
 
-        HorizontalDivider(color = Color(0xFF1E293B), modifier = Modifier.padding(vertical = 8.dp))
+        HorizontalDivider(color = colors.border, modifier = Modifier.padding(vertical = 8.dp))
         
         Text(
             text = "🛡️ Security Sandbox Settings", 
             fontSize = 15.sp, 
             fontWeight = FontWeight.Bold, 
-            color = Color.White
+            color = colors.textPrimary
         )
         
         val sandboxNet by viewModel.mcpSandboxNetworkAllowed.collectAsState()
@@ -854,11 +930,11 @@ fun McpManagerPage(viewModel: McpViewModel) {
         val sandboxNotif by viewModel.mcpSandboxNotificationsAllowed.collectAsState()
         
         Card(
-            colors = CardDefaults.cardColors(containerColor = Slate800),
+            colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
             shape = RoundedCornerShape(14.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(14.dp))
+                .border(1.dp, colors.border, RoundedCornerShape(14.dp))
         ) {
             Column(
                 modifier = Modifier.padding(14.dp),
@@ -870,17 +946,17 @@ fun McpManagerPage(viewModel: McpViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Sandbox Network Outbound", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Permit API & network requests", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                        Text("Sandbox Network Outbound", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+                        Text("Permit API & network requests", fontSize = 11.sp, color = colors.textSecondary)
                     }
                     Switch(
                         checked = sandboxNet,
                         onCheckedChange = { viewModel.updateMcpSandboxPermissions(it, sandboxFs, sandboxNotif) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TealGlow)
+                        colors = SwitchDefaults.colors(checkedThumbColor = colors.primaryAccent)
                     )
                 }
 
-                HorizontalDivider(color = Color(0xFF1E293B))
+                HorizontalDivider(color = colors.border)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -888,17 +964,17 @@ fun McpManagerPage(viewModel: McpViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Sandbox File System Actions", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Permit writing files to local disk sandbox", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                        Text("Sandbox File System Actions", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+                        Text("Permit writing files to local disk sandbox", fontSize = 11.sp, color = colors.textSecondary)
                     }
                     Switch(
                         checked = sandboxFs,
                         onCheckedChange = { viewModel.updateMcpSandboxPermissions(sandboxNet, it, sandboxNotif) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TealGlow)
+                        colors = SwitchDefaults.colors(checkedThumbColor = colors.primaryAccent)
                     )
                 }
 
-                HorizontalDivider(color = Color(0xFF1E293B))
+                HorizontalDivider(color = colors.border)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -906,32 +982,32 @@ fun McpManagerPage(viewModel: McpViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Sandbox Local Notifications", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Permit triggering native user info overlays", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                        Text("Sandbox Local Notifications", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+                        Text("Permit triggering native user info overlays", fontSize = 11.sp, color = colors.textSecondary)
                     }
                     Switch(
                         checked = sandboxNotif,
                         onCheckedChange = { viewModel.updateMcpSandboxPermissions(sandboxNet, sandboxFs, it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TealGlow)
+                        colors = SwitchDefaults.colors(checkedThumbColor = colors.primaryAccent)
                     )
                 }
             }
         }
 
-        HorizontalDivider(color = Color(0xFF1E293B), modifier = Modifier.padding(vertical = 8.dp))
+        HorizontalDivider(color = colors.border, modifier = Modifier.padding(vertical = 8.dp))
         
         Text(
             text = "📈 Live Execution Logs & Action History", 
             fontSize = 15.sp, 
             fontWeight = FontWeight.Bold, 
-            color = Color.White
+            color = colors.textPrimary
         )
 
         val mcpLogs by viewModel.mcpExecutionLogs.collectAsState()
 
         if (mcpLogs.isEmpty()) {
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                colors = CardDefaults.cardColors(containerColor = colors.background),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -944,7 +1020,7 @@ fun McpManagerPage(viewModel: McpViewModel) {
                     Text(
                         text = "No active tool calls registered in current session.", 
                         fontSize = 12.sp, 
-                        color = Color(0xFF64748B), 
+                        color = colors.textPlaceholder, 
                         textAlign = TextAlign.Center
                     )
                 }
@@ -955,11 +1031,11 @@ fun McpManagerPage(viewModel: McpViewModel) {
             ) {
                 mcpLogs.forEach { log ->
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                        colors = CardDefaults.cardColors(containerColor = colors.background),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                            .border(1.dp, colors.border, RoundedCornerShape(12.dp))
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Row(
@@ -972,13 +1048,13 @@ fun McpManagerPage(viewModel: McpViewModel) {
                                         text = log.toolName, 
                                         fontWeight = FontWeight.Bold, 
                                         fontSize = 13.sp, 
-                                        color = TealGlow,
+                                        color = colors.primaryAccent,
                                         fontFamily = FontFamily.Monospace
                                     )
                                     Text(
                                         text = "${log.serverName} • ${log.durationMs}ms", 
                                         fontSize = 11.sp, 
-                                        color = Color(0xFF64748B)
+                                        color = colors.textPlaceholder
                                     )
                                 }
                                 
@@ -1008,7 +1084,7 @@ fun McpManagerPage(viewModel: McpViewModel) {
                                 text = "Args: ${log.arguments}",
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
-                                color = Color(0xFF94A3B8),
+                                color = colors.textSecondary,
                                 maxLines = 2,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
@@ -1018,7 +1094,7 @@ fun McpManagerPage(viewModel: McpViewModel) {
                                 text = "Result: ${log.outputPreview}",
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
-                                color = Color(0xFF475569),
+                                color = colors.textPlaceholder,
                                 maxLines = 3,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
@@ -1044,6 +1120,8 @@ fun McpManagerPage(viewModel: McpViewModel) {
 fun MemoryPage(viewModel: SettingsViewModel) {
     val memoryList by viewModel.memories.collectAsState()
     var manualInput by remember { mutableStateOf("") }
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
 
     Column(
         modifier = Modifier
@@ -1052,8 +1130,8 @@ fun MemoryPage(viewModel: SettingsViewModel) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Memory & Personalization", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-        Text("We automatically parse your statements and extract preference entities. Here is what your local memory knows:", fontSize = 12.sp, color = Color(0xFF94A3B8))
+        Text("Memory & Personalization", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+        Text("We automatically parse your statements and extract preference entities. Here is what your local memory knows:", fontSize = 12.sp, color = colors.textSecondary)
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1063,8 +1141,15 @@ fun MemoryPage(viewModel: SettingsViewModel) {
             OutlinedTextField(
                 value = manualInput,
                 onValueChange = { manualInput = it },
-                placeholder = { Text("Type custom fact, preferences...", color = Color(0xFF475569)) },
-                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                placeholder = { Text("Type custom fact, preferences...", color = colors.textPlaceholder) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = colors.textPrimary,
+                    unfocusedTextColor = colors.textPrimary,
+                    focusedContainerColor = colors.fieldBackground,
+                    unfocusedContainerColor = colors.fieldBackground,
+                    focusedBorderColor = colors.primaryAccent,
+                    unfocusedBorderColor = colors.border
+                ),
                 modifier = Modifier.weight(1f)
             )
             IconButton(
@@ -1075,7 +1160,7 @@ fun MemoryPage(viewModel: SettingsViewModel) {
                 },
                 modifier = Modifier
                     .size(48.dp)
-                    .background(TealGlow, RoundedCornerShape(12.dp))
+                    .background(colors.primaryAccent, RoundedCornerShape(12.dp))
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Save", tint = Color.White)
             }
@@ -1086,7 +1171,7 @@ fun MemoryPage(viewModel: SettingsViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Saved Facts (${memoryList.size})", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Saved Facts (${memoryList.size})", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
             Text(
                 "Clear Archive",
                 fontSize = 12.sp,
@@ -1098,7 +1183,7 @@ fun MemoryPage(viewModel: SettingsViewModel) {
 
         memoryList.forEach { mem ->
             Card(
-                colors = CardDefaults.cardColors(containerColor = Slate800),
+                colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -1115,30 +1200,30 @@ fun MemoryPage(viewModel: SettingsViewModel) {
                         fontSize = 16.sp
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(mem.content, fontSize = 14.sp, color = Color.White, modifier = Modifier.weight(1f))
+                    Text(mem.content, fontSize = 14.sp, color = colors.textPrimary, modifier = Modifier.weight(1f))
                     IconButton(onClick = { viewModel.deleteMemory(mem.id) }) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFF64748B), modifier = Modifier.size(16.dp))
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = colors.textPlaceholder, modifier = Modifier.size(16.dp))
                     }
                 }
             }
         }
 
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+            colors = CardDefaults.cardColors(containerColor = colors.background),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(12.dp))
+                .border(1.dp, colors.border, RoundedCornerShape(12.dp))
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
-                Text("System Prompt Memory Preview", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TealGlow)
+                Text("System Prompt Memory Preview", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = colors.primaryAccent)
                 Text(
                     text = "User context memories:\n" + if (memoryList.isNotEmpty()) {
                         memoryList.joinToString("\n") { "- " + it.content }
                     } else "- No memory units parsed yet.",
                     fontFamily = FontFamily.Monospace,
                     fontSize = 11.sp,
-                    color = Color(0xFF94A3B8),
+                    color = colors.textSecondary,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
@@ -1164,6 +1249,9 @@ fun ModelSettingsPage(viewModel: SettingsViewModel) {
     var presencePenaltyInput by remember { mutableStateOf(presencePenalty) }
     var frequencyPenaltyInput by remember { mutableStateOf(frequencyPenalty) }
 
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1171,22 +1259,22 @@ fun ModelSettingsPage(viewModel: SettingsViewModel) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Hyperparameters Tune-up", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        Text("Hyperparameters Tune-up", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Temperature", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("${"%.2f".format(tempInput)}", fontSize = 13.sp, color = TealGlow, fontWeight = FontWeight.Bold)
+                Text("Temperature", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
+                Text("${"%.2f".format(tempInput)}", fontSize = 13.sp, color = colors.primaryAccent, fontWeight = FontWeight.Bold)
             }
             Slider(
                 value = tempInput,
                 onValueChange = { tempInput = it },
                 valueRange = 0f..2f,
                 steps = 20,
-                colors = SliderDefaults.colors(thumbColor = TealGlow, activeTrackColor = Teal600)
+                colors = SliderDefaults.colors(thumbColor = colors.primaryAccent, activeTrackColor = colors.primaryAccent.copy(alpha = 0.6f))
             )
         }
 
@@ -1195,15 +1283,15 @@ fun ModelSettingsPage(viewModel: SettingsViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Top P (Nucleus Sampling)", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("${"%.2f".format(topPInput)}", fontSize = 13.sp, color = TealGlow, fontWeight = FontWeight.Bold)
+                Text("Top P (Nucleus Sampling)", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
+                Text("${"%.2f".format(topPInput)}", fontSize = 13.sp, color = colors.primaryAccent, fontWeight = FontWeight.Bold)
             }
             Slider(
                 value = topPInput,
                 onValueChange = { topPInput = it },
                 valueRange = 0f..1f,
                 steps = 20,
-                colors = SliderDefaults.colors(thumbColor = TealGlow, activeTrackColor = Teal600)
+                colors = SliderDefaults.colors(thumbColor = colors.primaryAccent, activeTrackColor = colors.primaryAccent.copy(alpha = 0.6f))
             )
         }
 
@@ -1212,15 +1300,15 @@ fun ModelSettingsPage(viewModel: SettingsViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Top K", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("${topKInput.toInt()}", fontSize = 13.sp, color = TealGlow, fontWeight = FontWeight.Bold)
+                Text("Top K", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
+                Text("${topKInput.toInt()}", fontSize = 13.sp, color = colors.primaryAccent, fontWeight = FontWeight.Bold)
             }
             Slider(
                 value = topKInput,
                 onValueChange = { topKInput = it },
                 valueRange = 1f..100f,
                 steps = 99,
-                colors = SliderDefaults.colors(thumbColor = TealGlow, activeTrackColor = Teal600)
+                colors = SliderDefaults.colors(thumbColor = colors.primaryAccent, activeTrackColor = colors.primaryAccent.copy(alpha = 0.6f))
             )
         }
 
@@ -1229,15 +1317,15 @@ fun ModelSettingsPage(viewModel: SettingsViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Presence Penalty (Topic Variety)", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("${"%.2f".format(presencePenaltyInput)}", fontSize = 13.sp, color = TealGlow, fontWeight = FontWeight.Bold)
+                Text("Presence Penalty (Topic Variety)", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
+                Text("${"%.2f".format(presencePenaltyInput)}", fontSize = 13.sp, color = colors.primaryAccent, fontWeight = FontWeight.Bold)
             }
             Slider(
                 value = presencePenaltyInput,
                 onValueChange = { presencePenaltyInput = it },
                 valueRange = -2f..2f,
                 steps = 40,
-                colors = SliderDefaults.colors(thumbColor = TealGlow, activeTrackColor = Teal600)
+                colors = SliderDefaults.colors(thumbColor = colors.primaryAccent, activeTrackColor = colors.primaryAccent.copy(alpha = 0.6f))
             )
         }
 
@@ -1246,33 +1334,47 @@ fun ModelSettingsPage(viewModel: SettingsViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Frequency Penalty", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("${"%.2f".format(frequencyPenaltyInput)}", fontSize = 13.sp, color = TealGlow, fontWeight = FontWeight.Bold)
+                Text("Frequency Penalty", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
+                Text("${"%.2f".format(frequencyPenaltyInput)}", fontSize = 13.sp, color = colors.primaryAccent, fontWeight = FontWeight.Bold)
             }
             Slider(
                 value = frequencyPenaltyInput,
                 onValueChange = { frequencyPenaltyInput = it },
                 valueRange = -2f..2f,
                 steps = 40,
-                colors = SliderDefaults.colors(thumbColor = TealGlow, activeTrackColor = Teal600)
+                colors = SliderDefaults.colors(thumbColor = colors.primaryAccent, activeTrackColor = colors.primaryAccent.copy(alpha = 0.6f))
             )
         }
 
-        Text("Max Token Constraints", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+        Text("Max Token Constraints", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
         OutlinedTextField(
             value = maxToksInput,
             onValueChange = { maxToksInput = it },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = colors.textPrimary,
+                unfocusedTextColor = colors.textPrimary,
+                focusedContainerColor = colors.fieldBackground,
+                unfocusedContainerColor = colors.fieldBackground,
+                focusedBorderColor = colors.primaryAccent,
+                unfocusedBorderColor = colors.border
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
-        Text("Global System Prompt Template", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+        Text("Global System Prompt Template", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
         OutlinedTextField(
             value = systemPromptInput,
             onValueChange = { systemPromptInput = it },
             minLines = 4,
-            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = colors.textPrimary,
+                unfocusedTextColor = colors.textPrimary,
+                focusedContainerColor = colors.fieldBackground,
+                unfocusedContainerColor = colors.fieldBackground,
+                focusedBorderColor = colors.primaryAccent,
+                unfocusedBorderColor = colors.border
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -1288,7 +1390,7 @@ fun ModelSettingsPage(viewModel: SettingsViewModel) {
                     frequencyPenaltyInput
                 )
             },
-            colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+            colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Update boundary changes", color = Color.White)
@@ -1306,6 +1408,9 @@ fun AutoCompressPage(viewModel: SettingsViewModel) {
     var thresholdInput by remember { mutableStateOf(threshold) }
     var keepInput by remember { mutableStateOf(keepLast.toString()) }
 
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1319,30 +1424,37 @@ fun AutoCompressPage(viewModel: SettingsViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Enable Background Auto Compress", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("Saves memory history automatically if threshold is exceeded", fontSize = 12.sp, color = Color(0xFF94A3B8))
+                Text("Enable Background Auto Compress", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+                Text("Saves memory history automatically if threshold is exceeded", fontSize = 12.sp, color = colors.textSecondary)
             }
             Switch(
                 checked = enabledInput,
                 onCheckedChange = { enabledInput = it },
-                colors = SwitchDefaults.colors(checkedThumbColor = TealGlow)
+                colors = SwitchDefaults.colors(checkedThumbColor = colors.primaryAccent)
             )
         }
 
-        Text("Trigger Threshold: ${(thresholdInput * 100).toInt()}% of context scale", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+        Text("Trigger Threshold: ${(thresholdInput * 100).toInt()}% of context scale", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
         Slider(
             value = thresholdInput,
             onValueChange = { thresholdInput = it },
             valueRange = 0.5f..1f,
-            colors = SliderDefaults.colors(thumbColor = TealGlow, activeTrackColor = Teal600)
+            colors = SliderDefaults.colors(thumbColor = colors.primaryAccent, activeTrackColor = colors.primaryAccent.copy(alpha = 0.6f))
         )
 
-        Text("Keep Last N Messages Uncompressed", fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+        Text("Keep Last N Messages Uncompressed", fontSize = 13.sp, color = colors.textPrimary, fontWeight = FontWeight.Bold)
         OutlinedTextField(
             value = keepInput,
             onValueChange = { keepInput = it },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = colors.textPrimary,
+                unfocusedTextColor = colors.textPrimary,
+                focusedContainerColor = colors.fieldBackground,
+                unfocusedContainerColor = colors.fieldBackground,
+                focusedBorderColor = colors.primaryAccent,
+                unfocusedBorderColor = colors.border
+            ),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -1354,7 +1466,7 @@ fun AutoCompressPage(viewModel: SettingsViewModel) {
                     keepInput.toIntOrNull() ?: 20
                 )
             },
-            colors = ButtonDefaults.buttonColors(containerColor = TealGlow),
+            colors = ButtonDefaults.buttonColors(containerColor = colors.primaryAccent),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Update behaviors", color = Color.White)
@@ -1516,6 +1628,7 @@ fun DataPortPage(viewModel: SettingsViewModel) {
 @Composable
 fun AppearancePage(viewModel: SettingsViewModel) {
     val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
 
     Column(
         modifier = Modifier
@@ -1523,16 +1636,16 @@ fun AppearancePage(viewModel: SettingsViewModel) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Theme Mode UI Controls", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        Text("Theme Mode UI Controls", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
 
-        listOf("DARK", "LIGHT", "SYSTEM SLATE").forEach { mode ->
+        listOf("DARK", "LIGHT", "SYSTEM").forEach { mode ->
             val isSelected = themeMode == mode
             Card(
-                colors = CardDefaults.cardColors(containerColor = if (isSelected) Color(0x3314B8A6) else Slate800),
+                colors = CardDefaults.cardColors(containerColor = if (isSelected) colors.primaryAccent.copy(alpha = 0.15f) else colors.cardBackground),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { viewModel.setThemeMode(mode) }
-                    .border(1.dp, if (isSelected) TealGlow else Color(0xFF1E293B), RoundedCornerShape(12.dp)),
+                    .border(1.dp, if (isSelected) colors.primaryAccent else colors.border, RoundedCornerShape(12.dp)),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Row(
@@ -1540,11 +1653,11 @@ fun AppearancePage(viewModel: SettingsViewModel) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(mode, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(mode, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
                     RadioButton(
                         selected = isSelected,
                         onClick = { viewModel.setThemeMode(mode) },
-                        colors = RadioButtonDefaults.colors(selectedColor = TealGlow)
+                        colors = RadioButtonDefaults.colors(selectedColor = colors.primaryAccent)
                     )
                 }
             }

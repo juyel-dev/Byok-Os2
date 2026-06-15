@@ -43,11 +43,18 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {
-      MyApplicationTheme {
-        val settingsViewModel: SettingsViewModel = koinViewModel()
+      val settingsViewModel: SettingsViewModel = koinViewModel()
+      val themeMode by settingsViewModel.themeMode.collectAsState()
+      val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+      val isDark = when (themeMode) {
+        "LIGHT" -> false
+        "DARK" -> true
+        else -> isSystemDark
+      }
+
+      MyApplicationTheme(darkTheme = isDark, dynamicColor = false) {
         val chatViewModel: ChatViewModel = koinViewModel()
         val onboardingCompleted by settingsViewModel.onboardingCompleted.collectAsState()
-        val themeMode by settingsViewModel.themeMode.collectAsState()
         val colors = com.example.ui.theme.getByokColors(themeMode)
 
         val navController = rememberNavController()
@@ -102,6 +109,7 @@ class MainActivity : ComponentActivity() {
             ) {
               ChatScreen(
                 viewModel = chatViewModel,
+                themeModeStr = themeMode,
                 modifier = Modifier.padding(innerPadding),
                 onNavigateToSettings = {
                   navController.navigate(Screen.SettingsHome.route)
@@ -250,6 +258,7 @@ class MainActivity : ComponentActivity() {
               val agentViewModel: AgentViewModel = koinViewModel()
               AgentScreen(
                 viewModel = agentViewModel,
+                themeModeStr = themeMode,
                 modifier = Modifier.padding(innerPadding),
                 onBackClick = {
                   navController.popBackStack()

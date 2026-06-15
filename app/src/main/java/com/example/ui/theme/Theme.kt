@@ -28,9 +28,17 @@ data class ByokColorScheme(
     val buttonBackground: Color
 )
 
+@Composable
 fun getByokColors(themeMode: String): ByokColorScheme {
-    return when (themeMode) {
-        "LIGHT" -> ByokColorScheme(
+    val isSystemDark = isSystemInDarkTheme()
+    val isDark = when (themeMode) {
+        "LIGHT" -> false
+        "DARK" -> true
+        else -> isSystemDark
+    }
+    
+    return if (!isDark) {
+        ByokColorScheme(
             background = PremiumBackgroundDay, // Slate 50
             cardBackground = PremiumSurfaceDay,
             topBarBackground = PremiumBackgroundDay, // Slate 200
@@ -43,20 +51,7 @@ fun getByokColors(themeMode: String): ByokColorScheme {
             drawerContainerColor = PremiumSurfaceDay,
             buttonBackground = Color(0xFFCBD5E1)
         )
-        "SYSTEM SLATE" -> ByokColorScheme(
-            background = PremiumBackgroundNight, // Slate 900
-            cardBackground = PremiumSurfaceNight, // Slate 800
-            topBarBackground = PremiumBackgroundNight,
-            textPrimary = PremiumTextPrimaryNight,
-            textSecondary = PremiumTextSecondaryNight, // Slate 400
-            border = PremiumSurfaceVariantNight, // Slate 700
-            primaryAccent = PremiumPrimaryNight,
-            fieldBackground = PremiumSurfaceVariantNight,
-            textPlaceholder = Color(0xFF475569),
-            drawerContainerColor = PremiumBackgroundNight,
-            buttonBackground = Color(0xFF334155)
-        )
-        else -> // "DARK"
+    } else {
         ByokColorScheme(
             background = PremiumBackgroundNight, // Dark Slate
             cardBackground = PremiumSurfaceNight, // Slate 800-ish

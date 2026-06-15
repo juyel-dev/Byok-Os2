@@ -35,6 +35,10 @@ class McpViewModel(
 
     val mcpExecutionLogs = mcpService.executionLogs
 
+    val themeMode: StateFlow<String> = flow {
+        emit(repository.getSetting("theme_mode", "DARK"))
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, "DARK")
+
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 

@@ -40,11 +40,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel,
+    themeModeStr: String = "DARK",
     modifier: Modifier = Modifier,
     onNavigateToSettings: () -> Unit = {},
     onNavigateToAgent: () -> Unit = {},
     onNavigateToProviders: () -> Unit = {}
 ) {
+    val colors = getByokColors(themeModeStr)
     val currentSessionId by viewModel.currentSessionId.collectAsState()
     val sessions by viewModel.sessions.collectAsState()
     val messages by viewModel.currentMessages.collectAsState()
@@ -328,11 +330,11 @@ fun ChatScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
+                        containerColor = colors.background
                     )
                 )
             },
-            containerColor = Slate900
+            containerColor = colors.background
         ) { innerPadding ->
             Column(
                 modifier = Modifier
@@ -420,6 +422,7 @@ fun ChatScreen(
                         items(messages) { message ->
                             MessageItem(
                                 message = message,
+                                themeModeStr = themeModeStr,
                                 onCopyClick = {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     val clip = ClipData.newPlainText("Copied Local Message", message.content)
@@ -434,7 +437,7 @@ fun ChatScreen(
 
                         if (isStreaming && streamingContent.isNotEmpty()) {
                             item {
-                                MessageStreamBubble(content = streamingContent)
+                                MessageStreamBubble(content = streamingContent, themeModeStr = themeModeStr)
                             }
                         }
                     }
@@ -598,15 +601,8 @@ fun ChatScreen(
                             text = "🔧 MCP connection: $toolsText",
                             fontSize = 11.sp,
                             fontFamily = FontFamily.Monospace,
-                            color = if ((activeMcpToolsCountVal ?: 0) > 0) EmeraldGlow else Color(0xFF475569)
+                            color = if ((activeMcpToolsCountVal ?: 0) > 0) EmeraldGlow else colors.textPlaceholder
                         )
-
-                        IconButton(
-                            onClick = { viewModel.showToast("🎤 Voice model synthesis starting...") },
-                            modifier = Modifier.size(20.dp)
-                        ) {
-                            Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Voice", tint = Color(0xFF64748B), modifier = Modifier.size(14.dp))
-                        }
                     }
                 }
             }
@@ -617,6 +613,7 @@ fun ChatScreen(
 @Composable
 fun MessageItem(
     message: Message,
+    themeModeStr: String = "DARK",
     onCopyClick: () -> Unit,
     onRetryClick: () -> Unit
 ) {
@@ -758,7 +755,7 @@ fun MessageItem(
                         if (cleanContentText.isNotEmpty()) {
                             MarkdownText(
                                 text = cleanContentText,
-                                colors = getByokColors("DARK"),
+                                colors = getByokColors(themeModeStr),
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -796,7 +793,7 @@ fun MessageItem(
 }
 
 @Composable
-fun MessageStreamBubble(content: String) {
+fun MessageStreamBubble(content: String, themeModeStr: String = "DARK") {
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.Top,
@@ -819,7 +816,7 @@ fun MessageStreamBubble(content: String) {
             Column(modifier = Modifier.padding(12.dp)) {
                 MarkdownText(
                     text = content,
-                    colors = getByokColors("DARK"),
+                    colors = getByokColors(themeModeStr),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(4.dp))
