@@ -118,7 +118,13 @@ fun tryParseSpecialBlock(code: String, language: String): MarkdownBlock? {
     val trimmed = code.trim()
     val langLower = language.lowercase()
     
-    if (langLower == "svg" || (langLower.isEmpty() && trimmed.startsWith("<svg") && trimmed.contains("</svg>"))) {
+    val containsSvgTag = trimmed.contains("<svg", ignoreCase = true) && trimmed.contains("</svg>", ignoreCase = true)
+    if (langLower == "svg" || 
+        langLower == "xml" || 
+        langLower == "html" || 
+        (langLower.isEmpty() && containsSvgTag) ||
+        containsSvgTag
+    ) {
         return MarkdownBlock.SvgBlock(code)
     }
     
@@ -276,7 +282,7 @@ fun SvgRenderer(svgCode: String, modifier: Modifier = Modifier) {
                 webViewClient = WebViewClient()
                 settings.useWideViewPort = true
                 settings.loadWithOverviewMode = true
-                settings.javaScriptEnabled = false
+                settings.javaScriptEnabled = true
                 setBackgroundColor(0)
             }
         },
@@ -284,22 +290,23 @@ fun SvgRenderer(svgCode: String, modifier: Modifier = Modifier) {
             val html = """
                 <html>
                 <head>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
                     <style>
-                        body {
+                        html, body {
                             margin: 0;
-                            padding: 8px;
+                            padding: 0;
+                            width: 100%;
+                            height: 100%;
                             display: flex;
                             justify-content: center;
                             align-items: center;
                             background-color: transparent;
-                            height: 100vh;
                             overflow: hidden;
                         }
                         svg {
                             max-width: 100%;
                             max-height: 100%;
-                            width: auto;
-                            height: auto;
+                            display: block;
                         }
                     </style>
                 </head>
@@ -308,7 +315,11 @@ fun SvgRenderer(svgCode: String, modifier: Modifier = Modifier) {
                 </body>
                 </html>
             """.trimIndent()
-            webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+            val encodedHtml = android.util.Base64.encodeToString(
+                html.toByteArray(Charsets.UTF_8),
+                android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP
+            )
+            webView.loadData(encodedHtml, "text/html", "base64")
         },
         modifier = modifier
     )

@@ -86,6 +86,9 @@ fun SettingsScreen(
     onNavigateToDataPort: () -> Unit = {},
     onNavigateToAppearance: () -> Unit = {}
 ) {
+    val themeMode by viewModel.themeMode.collectAsState()
+    val colors = getByokColors(themeMode)
+
     SettingsPageWrapper(
         title = "Settings",
         viewModel = viewModel,
@@ -108,6 +111,7 @@ fun SettingsScreen(
                 title = "Cloud Sync",
                 subtitle = if (syncEnabled && isCloudOk) "✅ Connected and active" else "Supabase · Not setup yet",
                 icon = "☁️",
+                colors = colors,
                 onClick = onNavigateToCloudSync
             )
 
@@ -115,6 +119,7 @@ fun SettingsScreen(
                 title = "Providers",
                 subtitle = "${providersList.size} configured configurations",
                 icon = "🔌",
+                colors = colors,
                 onClick = onNavigateToProviders
             )
 
@@ -122,6 +127,7 @@ fun SettingsScreen(
                 title = "MCP Manager",
                 subtitle = "${serversList.filter { it.isEnabled }.size} active servers",
                 icon = "🔧",
+                colors = colors,
                 onClick = onNavigateToMcp
             )
 
@@ -129,6 +135,7 @@ fun SettingsScreen(
                 title = "Memory",
                 subtitle = "${memoriesList.size} custom facts saved",
                 icon = "🧠",
+                colors = colors,
                 onClick = onNavigateToMemory
             )
 
@@ -136,6 +143,7 @@ fun SettingsScreen(
                 title = "Model Settings",
                 subtitle = "Temperature, Prompting presets",
                 icon = "🤖",
+                colors = colors,
                 onClick = onNavigateToModelSettings
             )
 
@@ -143,6 +151,7 @@ fun SettingsScreen(
                 title = "Auto Compress",
                 subtitle = "Saves active context windows",
                 icon = "📦",
+                colors = colors,
                 onClick = onNavigateToAutoCompress
             )
 
@@ -150,6 +159,7 @@ fun SettingsScreen(
                 title = "Data Export/Import",
                 subtitle = "Local files backup",
                 icon = "💾",
+                colors = colors,
                 onClick = onNavigateToDataPort
             )
 
@@ -157,16 +167,18 @@ fun SettingsScreen(
                 title = "Appearance",
                 subtitle = "Theme Mode controls",
                 icon = "🌙",
+                colors = colors,
                 onClick = onNavigateToAppearance
             )
 
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = "BYOK OS v1.0.0 • Native Android • Slate Theme",
-                color = Color(0xFF64748B),
+                color = colors.textSecondary,
                 fontSize = 11.sp,
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.fillMaxWidth(),
+                onTextLayout = {},
                 textAlign = TextAlign.Center
             )
         }
@@ -178,14 +190,15 @@ fun SettingsOptionCard(
     title: String,
     subtitle: String,
     icon: String,
+    colors: com.example.core.common.theme.ByokColorScheme,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .border(1.dp, Color(0xFF1E293B), RoundedCornerShape(14.dp)),
-        colors = CardDefaults.cardColors(containerColor = Slate800),
+            .border(1.dp, colors.border, RoundedCornerShape(14.dp)),
+        colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
         shape = RoundedCornerShape(14.dp)
     ) {
         Row(
@@ -195,20 +208,20 @@ fun SettingsOptionCard(
             Box(
                 modifier = Modifier
                     .size(44.dp)
-                    .background(Color(0xFF1E293B), RoundedCornerShape(10.dp)),
+                    .background(colors.fieldBackground, RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = icon, fontSize = 20.sp)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Text(text = subtitle, fontSize = 12.sp, color = Color(0xFF94A3B8))
+                Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = colors.textPrimary)
+                Text(text = subtitle, fontSize = 12.sp, color = colors.textSecondary)
             }
             Icon(
                 imageVector = Icons.Default.Settings,
                 contentDescription = "Arrow",
-                tint = Color(0xFF475569),
+                tint = colors.textSecondary,
                 modifier = Modifier.size(16.dp)
             )
         }

@@ -79,23 +79,31 @@ fun ChatScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = MaterialTheme.colorScheme.surface,
-                drawerContentColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.width(300.dp)
+                drawerContainerColor = colors.background,
+                drawerContentColor = colors.textPrimary,
+                modifier = Modifier
+                    .width(300.dp)
+                    .border(2.dp, colors.border, RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp))
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(24.dp)
+                        .padding(20.dp)
                 ) {
                     // Drawer Header
-                    Text(
-                        text = "✧ BYOK OS",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 24.dp, top = 8.dp)
+                    ) {
+                        Text(
+                            text = "✧ BYOK OS",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Black,
+                            fontFamily = FontFamily.SansSerif,
+                            color = colors.primaryAccent,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
 
                     Button(
                         onClick = {
@@ -103,80 +111,86 @@ fun ChatScreen(
                             coroutineScope.launch { drawerState.close() }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            containerColor = colors.primaryAccent,
+                            contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
-                            .padding(bottom = 24.dp)
+                            .height(50.dp)
+                            .padding(bottom = 12.dp)
                     ) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-                            Text("New Conversation", fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("New Conversation", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
                     }
 
                     Text(
-                        text = "Recents",
+                        text = "RECENTS",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Monospace,
+                        color = colors.textSecondary,
+                        modifier = Modifier.padding(vertical = 12.dp)
                     )
 
                     // History list
                     LazyColumn(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         items(sessions) { s ->
                             val isSelected = s.id == currentSessionId
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+                                    containerColor = if (isSelected) colors.cardBackground else Color.Transparent
                                 ),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(10.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
                                         viewModel.selectSession(s.id)
                                         coroutineScope.launch { drawerState.close() }
                                     }
+                                    .then(
+                                        if (isSelected) Modifier.border(1.dp, colors.primaryAccent, RoundedCornerShape(10.dp))
+                                        else Modifier
+                                    )
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.MailOutline,
                                         contentDescription = "Chat",
-                                        tint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
+                                        tint = if (isSelected) colors.primaryAccent else colors.textSecondary,
+                                        modifier = Modifier.size(16.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
                                     Text(
                                         text = s.title,
-                                        fontSize = 14.sp,
+                                        fontSize = 13.sp,
                                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                        color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+                                        color = if (isSelected) colors.textPrimary else colors.textSecondary,
                                         maxLines = 1,
                                         modifier = Modifier.weight(1f)
                                     )
                                     if (isSelected) {
                                         IconButton(
                                             onClick = { viewModel.deleteSession(s.id) },
-                                            modifier = Modifier.size(24.dp)
+                                            modifier = Modifier.size(20.dp)
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Delete,
                                                 contentDescription = "Delete",
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                modifier = Modifier.size(16.dp)
+                                                tint = colors.textPlaceholder,
+                                                modifier = Modifier.size(14.dp)
                                             )
                                         }
                                     }
@@ -186,14 +200,14 @@ fun ChatScreen(
                     }
 
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant, 
-                        modifier = Modifier.padding(vertical = 16.dp)
+                        color = colors.border, 
+                        modifier = Modifier.padding(vertical = 12.dp)
                     )
 
                     // Bottom Navigation triggers (Settings Page & Autonomous Agent Screen)
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Button(
@@ -202,18 +216,19 @@ fun ChatScreen(
                                 coroutineScope.launch { drawerState.close() }
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                containerColor = colors.fieldBackground,
+                                contentColor = colors.textPrimary
                             ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.weight(1f).height(48.dp)
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.weight(1f).height(46.dp)
                         ) {
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Settings, contentDescription = "Settings", modifier = Modifier.size(18.dp))
-                                Text("Settings", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Icon(Icons.Default.Settings, contentDescription = "Settings", modifier = Modifier.size(15.dp), tint = colors.textSecondary)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Settings", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
@@ -222,16 +237,20 @@ fun ChatScreen(
                                 onNavigateToAgent()
                                 coroutineScope.launch { drawerState.close() }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.weight(1f).height(48.dp)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colors.primaryAccent.copy(alpha = 0.15f),
+                                contentColor = colors.primaryAccent
+                            ),
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.weight(1f).height(46.dp).border(1.dp, colors.primaryAccent.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
                         ) {
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Star, contentDescription = "Agent", modifier = Modifier.size(18.dp))
-                                Text("Agent", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Icon(Icons.Default.Star, contentDescription = "Agent", modifier = Modifier.size(15.dp), tint = colors.primaryAccent)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Agent", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -252,32 +271,35 @@ fun ChatScreen(
                                     .clip(RoundedCornerShape(24.dp))
                                     .clickable(enabled = !isStreaming) { showProviderDropdown = !showProviderDropdown }
                                     .background(
-                                        if (isStreaming) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                                        else MaterialTheme.colorScheme.surfaceVariant
+                                        if (isStreaming) colors.fieldBackground.copy(alpha = 0.5f)
+                                        else colors.fieldBackground
                                     )
-                                    .padding(horizontal = 16.dp, vertical = 10.dp)
-                                    .heightIn(min = 40.dp)
+                                    .border(1.dp, colors.border, RoundedCornerShape(24.dp))
+                                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                                    .heightIn(min = 36.dp)
                                     .testTag("provider_switcher_button"),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Icon(
                                     imageVector = if (isStreaming) Icons.Default.Lock else Icons.Default.KeyboardArrowDown,
                                     contentDescription = "Dropdown Indicator",
-                                    tint = if (isStreaming) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.5f) else MaterialTheme.colorScheme.primary,
+                                    tint = if (isStreaming) colors.textPlaceholder else colors.primaryAccent,
                                     modifier = Modifier.size(16.dp)
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Model: ${activeProvider?.displayName ?: "None"}",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (isStreaming) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.5f) else MaterialTheme.colorScheme.onSurface
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isStreaming) colors.textPlaceholder else colors.textPrimary
                                 )
 
                                 DropdownMenu(
                                     expanded = showProviderDropdown,
                                     onDismissRequest = { showProviderDropdown = false },
-                                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+                                    modifier = Modifier
+                                        .background(colors.cardBackground)
+                                        .border(1.dp, colors.border, RoundedCornerShape(8.dp))
                                 ) {
                                     providers.forEach { provider ->
                                         val isSelected = provider.id == selectedProviderId
@@ -291,13 +313,15 @@ fun ChatScreen(
                                                         Icon(
                                                             imageVector = Icons.Default.Check,
                                                             contentDescription = "Selected",
-                                                            tint = MaterialTheme.colorScheme.primary,
-                                                            modifier = Modifier.size(16.dp)
+                                                            tint = colors.primaryAccent,
+                                                            modifier = Modifier.size(14.dp)
                                                         )
                                                     }
                                                     Text(
                                                         text = provider.displayName,
-                                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                                        color = if (isSelected) colors.primaryAccent else colors.textPrimary,
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                        fontSize = 13.sp
                                                     )
                                                 }
                                             },
@@ -307,9 +331,16 @@ fun ChatScreen(
                                             }
                                         )
                                     }
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                    HorizontalDivider(color = colors.border)
                                     DropdownMenuItem(
-                                        text = { Text("＋ Manage Keys", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                                        text = { 
+                                            Text(
+                                                text = "＋ Manage Keys", 
+                                                color = colors.primaryAccent, 
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.sp
+                                            ) 
+                                        },
                                         onClick = {
                                             onNavigateToProviders()
                                             showProviderDropdown = false
@@ -321,12 +352,12 @@ fun ChatScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "MenuToggle", tint = MaterialTheme.colorScheme.onBackground)
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = "MenuToggle", tint = colors.textPrimary)
                         }
                     },
                     actions = {
                         IconButton(onClick = { onNavigateToSettings() }) {
-                            Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = MaterialTheme.colorScheme.onBackground)
+                            Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = colors.textPrimary)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -354,9 +385,10 @@ fun ChatScreen(
                         Surface(
                             modifier = Modifier
                                 .size(88.dp)
-                                .clip(CircleShape),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                .clip(CircleShape)
+                                .border(1.dp, colors.primaryAccent.copy(alpha = 0.4f), CircleShape),
+                            color = colors.primaryAccent.copy(alpha = 0.15f),
+                            contentColor = colors.primaryAccent
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 textTagHelper("✧", 42.sp)
@@ -367,11 +399,12 @@ fun ChatScreen(
                             text = "Intelligent AI Engine",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.onBackground
+                            fontFamily = FontFamily.SansSerif,
+                            color = colors.textPrimary
                         )
                         Text(
                             text = "Connect custom API keys, enable local MCP tools, and deploy self-contained prompts.",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = colors.textSecondary,
                             fontSize = 14.sp,
                             textAlign = TextAlign.Center,
                             lineHeight = 20.sp,
@@ -381,11 +414,12 @@ fun ChatScreen(
                         // Preset Prompts
                         listOf("Explain modern state management patterns", "Simulate read_file using MCP filesystem", "Synthesize memory context logic").forEach { prompt ->
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                                colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
                                 shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 6.dp)
+                                    .border(1.dp, colors.border, RoundedCornerShape(14.dp))
                                     .clickable {
                                         if (currentSessionId == null) {
                                             viewModel.createNewChat()
@@ -396,8 +430,8 @@ fun ChatScreen(
                                 Text(
                                     text = prompt,
                                     fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.SemiBold,
+                                    color = colors.primaryAccent,
+                                    fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
                                 )
                             }
@@ -447,41 +481,41 @@ fun ChatScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(colors.background)
                 ) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = colors.border)
 
                     if (isProcessingImage) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .background(colors.fieldBackground)
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
                             CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp),
+                                color = colors.primaryAccent,
+                                modifier = Modifier.size(18.dp),
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = "Evaluating optical assets...",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 13.sp,
+                                color = colors.textSecondary,
+                                fontSize = 12.sp,
                                 fontFamily = FontFamily.Monospace
                             )
                         }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        HorizontalDivider(color = colors.border)
                     }
 
                     if (attachedImageUri != null) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                                .background(colors.fieldBackground)
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -493,33 +527,33 @@ fun ChatScreen(
                                     model = attachedImageUri,
                                     contentDescription = "Attached Image Preview",
                                     modifier = Modifier
-                                        .size(48.dp)
+                                        .size(44.dp)
                                         .clip(RoundedCornerShape(8.dp))
-                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
-                                        .background(MaterialTheme.colorScheme.surface),
+                                        .border(1.dp, colors.border, RoundedCornerShape(8.dp))
+                                        .background(colors.background),
                                     contentScale = androidx.compose.ui.layout.ContentScale.Crop
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
                                     text = "Ready to upload: Image captured",
                                     fontSize = 13.sp,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontWeight = FontWeight.SemiBold
+                                    color = colors.textPrimary,
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
                             IconButton(
                                 onClick = { viewModel.clearAttachedImage() },
-                                modifier = Modifier.size(48.dp)
+                                modifier = Modifier.size(40.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Remove Attachment",
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(20.dp)
+                                    tint = colors.textPrimary,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        HorizontalDivider(color = colors.border)
                     }
 
                     Row(
@@ -531,29 +565,29 @@ fun ChatScreen(
                         IconButton(
                             onClick = { imagePickerLauncher.launch("image/*") },
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(44.dp)
                                 .testTag("attachment_button")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AddCircle,
                                 contentDescription = "Attach Image",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
+                                tint = colors.primaryAccent,
+                                modifier = Modifier.size(26.dp)
                             )
                         }
 
                         OutlinedTextField(
                             value = chatInputText,
                             onValueChange = { chatInputText = it },
-                            placeholder = { Text("Ask something...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                            placeholder = { Text("Ask something...", color = colors.textPlaceholder, fontSize = 14.sp) },
                             maxLines = 4,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = Color.Transparent
+                                focusedTextColor = colors.textPrimary,
+                                unfocusedTextColor = colors.textPrimary,
+                                focusedContainerColor = colors.fieldBackground,
+                                unfocusedContainerColor = colors.fieldBackground,
+                                focusedBorderColor = colors.primaryAccent,
+                                unfocusedBorderColor = colors.border
                             ),
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
@@ -571,15 +605,15 @@ fun ChatScreen(
                                 chatInputText = ""
                             },
                             modifier = Modifier
-                                .size(44.dp)
-                                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                                .size(40.dp)
+                                .background(colors.primaryAccent, CircleShape)
                                 .testTag("send_button")
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = "Send",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(18.dp)
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
@@ -620,56 +654,70 @@ fun MessageItem(
     val isUser = message.role == "user"
     val isSystem = message.role == "system"
     val isToolOutput = message.role == "tool"
+    val colors = getByokColors(themeModeStr)
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
         horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
     ) {
         if (isSystem) {
             Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                colors = CardDefaults.cardColors(containerColor = colors.fieldBackground),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .border(1.dp, colors.border.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
                     .padding(vertical = 4.dp)
             ) {
-                Text(
-                    text = message.content,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Monospace,
-                    modifier = Modifier.padding(10.dp)
-                )
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = "📋 SYSTEM CONTEXT",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
+                        color = colors.primaryAccent.copy(alpha = 0.8f),
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = message.content,
+                        color = colors.textSecondary,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Monospace,
+                    )
+                }
             }
         } else if (isToolOutput) {
             val toolNameRaw = message.toolName ?: "MCP Server"
             val parsedId = com.example.core.data.service.ToolIdentifier.parse(toolNameRaw)
             val displayName = if (parsedId != null) {
-                "🔧 Tool [${parsedId.toolName}] (Server: ${parsedId.serverId})"
+                "🔧 MCP Tool Executed [${parsedId.toolName}] (Server: ${parsedId.serverId})"
             } else {
-                "🔧 Tool output [$toolNameRaw]"
+                "🔧 MCP Tool Executed [$toolNameRaw]"
             }
             Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+                colors = CardDefaults.cardColors(containerColor = colors.fieldBackground),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(0.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp))
+                    .border(1.dp, colors.primaryAccent.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
+                Column(modifier = Modifier.padding(12.dp)) {
                     Text(
                         text = displayName,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = colors.primaryAccent,
                         fontFamily = FontFamily.Monospace
                     )
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = message.content,
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = colors.textSecondary,
                         fontFamily = FontFamily.Monospace,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }
@@ -677,47 +725,69 @@ fun MessageItem(
             Row(
                 horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
                 verticalAlignment = Alignment.Top,
-                modifier = Modifier.fillMaxWidth(0.85f)
+                modifier = Modifier.fillMaxWidth(0.88f)
             ) {
                 if (!isUser) {
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+                            .size(30.dp)
+                            .background(colors.primaryAccent.copy(alpha = 0.15f), CircleShape)
+                            .border(1.dp, colors.primaryAccent.copy(alpha = 0.3f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("✦", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = "✦",
+                            fontSize = 15.sp,
+                            color = colors.primaryAccent,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
+
+                val currentBubbleColors = if (isUser) {
+                    colors.copy(
+                        textPrimary = Color.White,
+                        textSecondary = Color.White.copy(alpha = 0.82f),
+                        border = Color.White.copy(alpha = 0.3f),
+                        fieldBackground = Color.White.copy(alpha = 0.15f),
+                        cardBackground = Color.White.copy(alpha = 0.15f)
+                    )
+                } else {
+                    colors
                 }
 
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = if (isUser) colors.primaryAccent else colors.cardBackground
                     ),
                     shape = RoundedCornerShape(
                         topStart = 16.dp,
                         topEnd = 16.dp,
                         bottomStart = if (isUser) 16.dp else 2.dp,
                         bottomEnd = if (isUser) 2.dp else 16.dp
+                    ),
+                    modifier = Modifier.then(
+                        if (!isUser) Modifier.border(1.dp, colors.border, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 2.dp, bottomEnd = 16.dp))
+                        else Modifier
                     )
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(14.dp)) {
                         if (message.isToolCall && !message.toolName.isNullOrBlank()) {
                             val toolNameRaw = message.toolName
                             val parsedId = com.example.core.data.service.ToolIdentifier.parse(toolNameRaw)
                             val displayCall = if (parsedId != null) {
-                                "⚡ THICKENING REASONING: calling tool '${parsedId.toolName}' on server '${parsedId.serverId}'..."
+                                "⚡ Call MCP Tool '${parsedId.toolName}' on server '${parsedId.serverId}'..."
                             } else {
-                                "⚡ THICKENING REASONING: calling tool '$toolNameRaw'..."
+                                "⚡ Call MCP Tool '$toolNameRaw'..."
                             }
                             Text(
                                 text = displayCall,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = if (isUser) Color.White else colors.primaryAccent,
                                 fontFamily = FontFamily.Monospace,
-                                modifier = Modifier.padding(bottom = 4.dp)
+                                modifier = Modifier.padding(bottom = 6.dp)
                             )
                         }
 
@@ -734,19 +804,20 @@ fun MessageItem(
 
                         if (imageUriStr != null) {
                             Card(
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = CardDefaults.cardColors(containerColor = if (isUser) Color.White.copy(alpha = 0.15f) else colors.background),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 8.dp)
+                                    .padding(bottom = 10.dp)
+                                    .border(1.dp, if (isUser) Color.White.copy(alpha = 0.3f) else colors.border, RoundedCornerShape(10.dp))
                             ) {
                                 coil.compose.AsyncImage(
                                     model = imageUriStr,
                                     contentDescription = "Attached Media Content",
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .heightIn(max = 240.dp)
-                                        .clip(RoundedCornerShape(12.dp)),
+                                        .heightIn(max = 220.dp)
+                                        .clip(RoundedCornerShape(10.dp)),
                                     contentScale = androidx.compose.ui.layout.ContentScale.Fit
                                 )
                             }
@@ -755,34 +826,50 @@ fun MessageItem(
                         if (cleanContentText.isNotEmpty()) {
                             MarkdownText(
                                 text = cleanContentText,
-                                colors = getByokColors(themeModeStr),
+                                colors = currentBubbleColors,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
 
                         if (!isUser) {
+                            Spacer(modifier = Modifier.height(10.dp))
                             Row(
-                                modifier = Modifier
-                                    .padding(top = 8.dp)
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "📋 Copy",
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.clickable { onCopyClick() }
-                                )
+                                // Elegant Action copy pill
+                                Row(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(colors.fieldBackground)
+                                        .clickable { onCopyClick() }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "📋 Copy",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = colors.textSecondary
+                                    )
+                                }
 
-                                Text(
-                                    text = "🔄 Retry",
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.clickable { onRetryClick() }
-                                )
+                                Row(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(colors.fieldBackground)
+                                        .clickable { onRetryClick() }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "🔄 Retry",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = colors.textSecondary
+                                    )
+                                }
                             }
                         }
                     }
@@ -794,39 +881,63 @@ fun MessageItem(
 
 @Composable
 fun MessageStreamBubble(content: String, themeModeStr: String = "DARK") {
+    val colors = getByokColors(themeModeStr)
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.Top,
-        modifier = Modifier.fillMaxWidth(0.85f)
+        modifier = Modifier
+            .fillMaxWidth(0.88f)
+            .padding(vertical = 4.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(28.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+                .size(30.dp)
+                .background(colors.primaryAccent.copy(alpha = 0.15f), CircleShape)
+                .border(1.dp, colors.primaryAccent.copy(alpha = 0.3f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Text("✦", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                text = "✦",
+                fontSize = 15.sp,
+                color = colors.primaryAccent,
+                fontWeight = FontWeight.Bold
+            )
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(10.dp))
 
         Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            shape = RoundedCornerShape(16.dp)
+            colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
+            shape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp,
+                bottomStart = 2.dp,
+                bottomEnd = 16.dp
+            ),
+            modifier = Modifier.border(
+                1.dp,
+                colors.primaryAccent.copy(alpha = 0.25f),
+                RoundedCornerShape(
+                    topStart = 16.dp,
+                    topEnd = 16.dp,
+                    bottomStart = 2.dp,
+                    bottomEnd = 16.dp
+                )
+            )
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(14.dp)) {
                 MarkdownText(
                     text = content,
-                    colors = getByokColors(themeModeStr),
+                    colors = colors,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
-                    Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.primary.copy(alpha=0.6f), CircleShape))
-                    Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.primary.copy(alpha=0.2f), CircleShape))
+                    Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent, CircleShape))
+                    Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent.copy(alpha=0.6f), CircleShape))
+                    Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent.copy(alpha=0.2f), CircleShape))
                 }
             }
         }
