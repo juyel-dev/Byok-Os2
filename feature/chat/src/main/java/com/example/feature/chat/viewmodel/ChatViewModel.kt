@@ -543,4 +543,23 @@ class ChatViewModel(
             }
         }
     }
+
+    fun stopGeneration() {
+        activeJob?.cancel()
+        _isStreaming.value = false
+        val currentContent = _streamingMessageContent.value 
+        if (currentContent.isNotBlank()) {
+            val sessionId = _currentSessionId.value ?: return
+            viewModelScope.launch {
+                val assistantMessage = Message(
+                    id = java.util.UUID.randomUUID().toString(),
+                    sessionId = sessionId,
+                    role = "assistant",
+                    content = currentContent
+                )
+                repository.insertMessage(assistantMessage)
+                _streamingMessageContent.value = ""
+            }
+        }
+    }
 }

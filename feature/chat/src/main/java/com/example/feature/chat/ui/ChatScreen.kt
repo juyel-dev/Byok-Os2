@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +44,7 @@ import android.os.Bundle
 import java.util.Locale
 import android.content.ActivityNotFoundException
 import android.app.Activity
+import android.speech.tts.TextToSpeech
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -173,6 +175,22 @@ fun ChatScreen(
         speechRecognizer.setRecognitionListener(speechListener)
         onDispose {
             speechRecognizer.destroy()
+        }
+    }
+
+    var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
+    var isTtsReady by remember { mutableStateOf(false) }
+
+    DisposableEffect(context) {
+        val tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                isTtsReady = true
+            }
+        }
+        textToSpeech = tts
+        onDispose {
+            tts.stop()
+            tts.shutdown()
         }
     }
 
@@ -467,6 +485,24 @@ fun ChatScreen(
                         }
                     },
                     actions = {
+                        IconButton(onClick = {
+                            val markdownContent = buildString {
+                                appendLine("# ${sessions.firstOrNull { it.id == currentSessionId }?.title ?: "Chat"}")
+                                appendLine()
+                                messages.forEach { msg ->
+                                    val roleText = if (msg.role == "user") "**User**:" else "**Assistant**:"
+                                    appendLine(roleText)
+                                    appendLine(msg.content)
+                                    appendLine()
+                                }
+                            }
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("Exported Markdown", markdownContent)
+                            clipboard.setPrimaryClip(clip)
+                            viewModel.showToast("Exported as Markdown to clipboard.")
+                        }) {
+                            Icon(imageVector = Icons.Default.Share, contentDescription = "Export Markdown", tint = colors.textPrimary)
+                        }
                         IconButton(onClick = { onNavigateToSettings() }) {
                             Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = colors.textPrimary)
                         }
@@ -550,39 +586,93 @@ fun ChatScreen(
                     }
                 } else {
                     val scrollState = rememberLazyListState()
+                    val canScrollDown by remember {
+                        derivedStateOf { scrollState.canScrollForward }
+                    }
+
                     LaunchedEffect(messages.size, streamingContent) {
                         if (messages.isNotEmpty()) {
-                            scrollState.animateScrollToItem(messages.size - 1)
+                            scrollState.animateScrollToItem(if (isStreaming) messages.size else messages.size - 1)
                         }
                     }
 
-                    LazyColumn(
-                        state = scrollState,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
-                    ) {
-                        items(messages) { message ->
-                            MessageItem(
-                                message = message,
-                                themeModeStr = themeModeStr,
-                                onCopyClick = {
-                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    val clip = ClipData.newPlainText("Copied Local Message", message.content)
-                                    clipboard.setPrimaryClip(clip)
-                                    viewModel.showToast("Message copied to clipboard.")
-                                },
-                                onRetryClick = {
-                                    viewModel.retryGeneration()
+                    Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                        LazyColumn(
+                            state = scrollState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            items(messages) { message ->
+                                MessageItem(
+                                    message = message,
+                                    themeModeStr = themeModeStr,
+                                    onCopyClick = {
+                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                        val clip = ClipData.newPlainText("Copied Local Message", message.content)
+                                        clipboard.setPrimaryClip(clip)
+                                        viewModel.showToast("Message copied to clipboard.")
+                                    },
+                                    onRetryClick = {
+                                        viewModel.retryGeneration()
+                                    },
+                                    onSpeakClick = { msgText ->
+                                        if (isTtsReady) {
+                                            textToSpeech?.speak(msgText, TextToSpeech.QUEUE_FLUSH, null, null)
+                                        } else {
+                                            viewModel.showToast("Text-to-speech is not ready yet.")
+                                        }
+                                    },
+                                    onEditClick = { msgText ->
+                                        chatInputText = msgText
+                                    }
+                                )
+                            }
+
+                            if (isStreaming) {
+                                item {
+                                    MessageStreamBubble(content = streamingContent, themeModeStr = themeModeStr)
                                 }
-                            )
+                            }
                         }
 
-                        if (isStreaming && streamingContent.isNotEmpty()) {
-                            item {
-                                MessageStreamBubble(content = streamingContent, themeModeStr = themeModeStr)
+                        if (canScrollDown && !isStreaming) {
+                            androidx.compose.material3.FloatingActionButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        scrollState.animateScrollToItem(if (isStreaming) messages.size else messages.size - 1)
+                                    }
+                                },
+                                containerColor = colors.cardBackground,
+                                contentColor = colors.textPrimary,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(end = 16.dp, bottom = 16.dp)
+                                    .size(40.dp),
+                                shape = CircleShape
+                            ) {
+                                Icon(Icons.Default.ArrowDownward, contentDescription = "Scroll Down", modifier = Modifier.size(20.dp))
+                            }
+                        }
+
+                        if (isStreaming) {
+                            androidx.compose.material3.FloatingActionButton(
+                                onClick = { viewModel.stopGeneration() },
+                                containerColor = colors.cardBackground,
+                                contentColor = colors.primaryAccent,
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(bottom = 16.dp),
+                                shape = RoundedCornerShape(50)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Stop, contentDescription = "Stop", modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Text("Stop Generating", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                }
                             }
                         }
                     }
@@ -799,7 +889,9 @@ fun MessageItem(
     message: Message,
     themeModeStr: String = "DARK",
     onCopyClick: () -> Unit,
-    onRetryClick: () -> Unit
+    onRetryClick: () -> Unit,
+    onSpeakClick: (String) -> Unit,
+    onEditClick: (String) -> Unit
 ) {
     val isUser = message.role == "user"
     val isSystem = message.role == "system"
@@ -1020,6 +1112,45 @@ fun MessageItem(
                                         color = colors.textSecondary
                                     )
                                 }
+
+                                Row(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(colors.fieldBackground)
+                                        .clickable { onSpeakClick(cleanContentText) }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "🔊 Speak",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = colors.textSecondary
+                                    )
+                                }
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth().alpha(0.85f),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(Color.White.copy(alpha = 0.2f))
+                                        .clickable { onEditClick(cleanContentText) }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "✏️ Edit",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
                     }
@@ -1075,19 +1206,38 @@ fun MessageStreamBubble(content: String, themeModeStr: String = "DARK") {
             )
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
-                MarkdownText(
-                    text = content,
-                    colors = colors,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent, CircleShape))
-                    Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent.copy(alpha=0.6f), CircleShape))
-                    Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent.copy(alpha=0.2f), CircleShape))
+                if (content.isEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            color = colors.primaryAccent,
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Analyzing...",
+                            color = colors.textSecondary,
+                            fontSize = 14.sp
+                        )
+                    }
+                } else {
+                    MarkdownText(
+                        text = content,
+                        colors = colors,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent, CircleShape))
+                        Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent.copy(alpha=0.6f), CircleShape))
+                        Box(modifier = Modifier.size(6.dp).background(colors.primaryAccent.copy(alpha=0.2f), CircleShape))
+                    }
                 }
             }
         }
