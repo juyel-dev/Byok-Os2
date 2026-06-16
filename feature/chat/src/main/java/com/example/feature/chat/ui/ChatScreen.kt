@@ -35,6 +35,12 @@ import com.example.core.common.theme.*
 import com.example.core.domain.models.Message
 import com.example.feature.chat.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.speech.RecognitionListener
+import android.os.Bundle
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,6 +80,78 @@ fun ChatScreen(
 
     val activeProvider = providers.firstOrNull { it.id == selectedProviderId }
     val activeMcpToolsCount by viewModel.activeMcpToolsCount.collectAsState()
+
+    var isListening by remember { mutableStateOf(false) }
+    val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+    
+    val speechRecognizerIntent = remember {
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        }
+    }
+
+    val speechListener = remember {
+        object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                isListening = true
+            }
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {
+                isListening = false
+            }
+            override fun onError(error: Int) {
+                isListening = false
+                val errMsg = when (error) {
+                    SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
+                    SpeechRecognizer.ERROR_CLIENT -> "Client error"
+                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
+                    SpeechRecognizer.ERROR_NETWORK -> "Network error"
+                    SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
+                    SpeechRecognizer.ERROR_NO_MATCH -> "No speech matched"
+                    SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Service busy"
+                    SpeechRecognizer.ERROR_SERVER -> "Server error"
+                    SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input timeout"
+                    else -> "Speech recognition error"
+                }
+                viewModel.showToast(errMsg)
+            }
+            override fun onResults(results: Bundle?) {
+                isListening = false
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    chatInputText = matches[0]
+                }
+            }
+            override fun onPartialResults(partialResults: Bundle?) {
+                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    chatInputText = matches[0]
+                }
+            }
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        }
+    }
+
+    DisposableEffect(Unit) {
+        speechRecognizer.setRecognitionListener(speechListener)
+        onDispose {
+            speechRecognizer.destroy()
+        }
+    }
+
+    val micPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            viewModel.showToast("Microphone permission granted! Tap to speak.")
+        } else {
+            viewModel.showToast("Microphone permission denied.")
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -589,6 +667,35 @@ fun ChatScreen(
                                 focusedBorderColor = colors.primaryAccent,
                                 unfocusedBorderColor = colors.border
                             ),
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        val hasMicPermission = androidx.core.content.ContextCompat.checkSelfPermission(
+                                            context,
+                                            android.Manifest.permission.RECORD_AUDIO
+                                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                                        
+                                        if (hasMicPermission) {
+                                            if (isListening) {
+                                                speechRecognizer.stopListening()
+                                                isListening = false
+                                            } else {
+                                                speechRecognizer.startListening(speechRecognizerIntent)
+                                            }
+                                        } else {
+                                            micPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                                        }
+                                    },
+                                    modifier = Modifier.size(36.dp).testTag("voice_input_button")
+                                ) {
+                                    Icon(
+                                        imageVector = if (isListening) Icons.Default.Close else Icons.Default.Mic,
+                                        contentDescription = "Voice Input",
+                                        tint = if (isListening) Color.Red else colors.primaryAccent,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            },
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier
                                 .weight(1f)
