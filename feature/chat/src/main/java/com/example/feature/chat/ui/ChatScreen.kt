@@ -41,6 +41,8 @@ import android.speech.SpeechRecognizer
 import android.speech.RecognitionListener
 import android.os.Bundle
 import java.util.Locale
+import android.content.ActivityNotFoundException
+import android.app.Activity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,6 +91,36 @@ fun ChatScreen(
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
+        }
+    }
+
+    val systemSpeechIntent = remember {
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.getDefault().toString())
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now / কথা বলুন...")
+        }
+    }
+
+    val systemSpeechLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            if (!matches.isNullOrEmpty()) {
+                chatInputText = matches[0]
+                viewModel.showToast("Speech recognized successfully!")
+            }
+        }
+    }
+
+    val launchSystemSpeechInput: () -> Unit = {
+        try {
+            systemSpeechLauncher.launch(systemSpeechIntent)
+        } catch (e: ActivityNotFoundException) {
+            viewModel.showToast("Speech Recognition not supported on this device.")
         }
     }
 
@@ -107,7 +139,7 @@ fun ChatScreen(
                 isListening = false
                 val errMsg = when (error) {
                     SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
-                    SpeechRecognizer.ERROR_CLIENT -> "Client error"
+                    SpeechRecognizer.ERROR_CLIENT -> "Client/Connection error"
                     SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
                     SpeechRecognizer.ERROR_NETWORK -> "Network error"
                     SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
@@ -117,7 +149,8 @@ fun ChatScreen(
                     SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input timeout"
                     else -> "Speech recognition error"
                 }
-                viewModel.showToast(errMsg)
+                viewModel.showToast("$errMsg - launching system voice keyboard")
+                launchSystemSpeechInput()
             }
             override fun onResults(results: Bundle?) {
                 isListening = false
@@ -677,10 +710,20 @@ fun ChatScreen(
                                         
                                         if (hasMicPermission) {
                                             if (isListening) {
-                                                speechRecognizer.stopListening()
+                                                try {
+                                                    speechRecognizer.stopListening()
+                                                } catch (e: Exception) {
+                                                    // ignore
+                                                }
                                                 isListening = false
                                             } else {
-                                                speechRecognizer.startListening(speechRecognizerIntent)
+                                                try {
+                                                    speechRecognizer.startListening(speechRecognizerIntent)
+                                                    isListening = true
+                                                } catch (e: Exception) {
+                                                    isListening = false
+                                                    launchSystemSpeechInput()
+                                                }
                                             }
                                         } else {
                                             micPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
