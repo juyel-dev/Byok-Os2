@@ -406,6 +406,16 @@ fun WelcomeScreen(
                                 }
                             }
                         }
+
+                        TextButton(
+                            onClick = {
+                                viewModel.completeOnboarding()
+                                onOnboardingComplete()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Skip for now", color = colors.textSecondary)
+                        }
                     }
                 }
             }
