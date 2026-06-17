@@ -36,6 +36,15 @@ import com.example.core.common.theme.*
 import com.example.core.domain.models.Message
 import com.example.feature.chat.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.AnimatedVisibility
+
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -678,6 +687,38 @@ fun ChatScreen(
                     }
                 }
 
+                if (messages.isEmpty() && !isStreaming) {
+                    val suggestedPrompts = listOf(
+                        "Explain quantum computing in simple terms",
+                        "Write a polite decline email",
+                        "How to make perfect scrambled eggs?",
+                        "Create a 7-day workout plan"
+                    )
+                    androidx.compose.foundation.lazy.LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp, horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(suggestedPrompts) { prompt ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(colors.fieldBackground)
+                                    .border(1.dp, colors.border, RoundedCornerShape(16.dp))
+                                    .clickable { chatInputText = prompt }
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = prompt,
+                                    fontSize = 13.sp,
+                                    color = colors.textPrimary
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Chat Input controllers
                 Column(
                     modifier = Modifier
@@ -685,6 +726,87 @@ fun ChatScreen(
                         .background(colors.background)
                 ) {
                     HorizontalDivider(color = colors.border)
+                    
+                    // Settings Bar
+                    var isWebSearchEnabled by remember { mutableStateOf(false) }
+                    var isMemoryEnabled by remember { mutableStateOf(true) }
+                    var selectedModel by remember { mutableStateOf("GPT-4") }
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { isWebSearchEnabled = !isWebSearchEnabled }
+                                    .padding(horizontal = 6.dp, vertical = 4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Web Search",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = if (isWebSearchEnabled) colors.primaryAccent else colors.textSecondary
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    text = "Web",
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isWebSearchEnabled) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isWebSearchEnabled) colors.primaryAccent else colors.textSecondary
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { isMemoryEnabled = !isMemoryEnabled }
+                                    .padding(horizontal = 6.dp, vertical = 4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Memory",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = if (isMemoryEnabled) colors.primaryAccent else colors.textSecondary
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    text = "Memory",
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isMemoryEnabled) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isMemoryEnabled) colors.primaryAccent else colors.textSecondary
+                                )
+                            }
+                        }
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { 
+                                    selectedModel = if (selectedModel == "GPT-4") "GPT-3.5" else "GPT-4"
+                                }
+                                .padding(horizontal = 6.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = selectedModel,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = colors.textPrimary
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Model Selector",
+                                modifier = Modifier.size(16.dp),
+                                tint = colors.textSecondary
+                            )
+                        }
+                    }
 
                     if (isProcessingImage) {
                         Row(
@@ -774,6 +896,18 @@ fun ChatScreen(
                                 contentDescription = "Attach Image",
                                 tint = colors.primaryAccent,
                                 modifier = Modifier.size(26.dp)
+                            )
+                        }
+                        
+                        IconButton(
+                            onClick = { viewModel.showToast("File upload mock initiated") },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Upload File",
+                                tint = colors.textSecondary,
+                                modifier = Modifier.size(24.dp)
                             )
                         }
 
@@ -1207,20 +1341,33 @@ fun MessageStreamBubble(content: String, themeModeStr: String = "DARK") {
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 if (content.isEmpty()) {
+                    val infiniteTransition = rememberInfiniteTransition()
+                    val pulseAlpha by infiniteTransition.animateFloat(
+                        initialValue = 0.3f,
+                        targetValue = 1.0f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(800, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "pulseAlpha"
+                    )
+
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        CircularProgressIndicator(
-                            color = colors.primaryAccent,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(16.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .clip(CircleShape)
+                                .background(colors.primaryAccent.copy(alpha = pulseAlpha))
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Analyzing...",
-                            color = colors.textSecondary,
-                            fontSize = 14.sp
+                            text = "Analyzing context...",
+                            color = colors.textSecondary.copy(alpha = pulseAlpha),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 } else {
