@@ -189,6 +189,15 @@ fun ChatScreen(
 
     var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
     var isTtsReady by remember { mutableStateOf(false) }
+    
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.showToast("File selected: ${uri.lastPathSegment}")
+            // Optional: Handle the file
+        }
+    }
 
     DisposableEffect(context) {
         val tts = TextToSpeech(context) { status ->
@@ -885,31 +894,60 @@ fun ChatScreen(
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = { imagePickerLauncher.launch("image/*") },
-                            modifier = Modifier
-                                .size(44.dp)
-                                .testTag("attachment_button")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AddCircle,
-                                contentDescription = "Attach Image",
-                                tint = colors.primaryAccent,
-                                modifier = Modifier.size(26.dp)
-                            )
+                        var showAttachmentMenu by remember { mutableStateOf(false) }
+
+                        Box {
+                            IconButton(
+                                onClick = { showAttachmentMenu = true },
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .testTag("attachment_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AddCircle,
+                                    contentDescription = "Attach",
+                                    tint = colors.primaryAccent,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+
+                            androidx.compose.material3.DropdownMenu(
+                                expanded = showAttachmentMenu,
+                                onDismissRequest = { showAttachmentMenu = false },
+                                modifier = Modifier.background(colors.cardBackground)
+                            ) {
+                                androidx.compose.material3.DropdownMenuItem(
+                                    text = { Text("Upload Image", color = colors.textPrimary) },
+                                    onClick = {
+                                        showAttachmentMenu = false
+                                        imagePickerLauncher.launch("image/*")
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Image,
+                                            contentDescription = null,
+                                            tint = colors.textSecondary
+                                        )
+                                    }
+                                )
+                                androidx.compose.material3.DropdownMenuItem(
+                                    text = { Text("Upload File", color = colors.textPrimary) },
+                                    onClick = {
+                                        showAttachmentMenu = false
+                                        filePickerLauncher.launch(arrayOf("*/*"))
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.InsertDriveFile,
+                                            contentDescription = null,
+                                            tint = colors.textSecondary
+                                        )
+                                    }
+                                )
+                            }
                         }
                         
-                        IconButton(
-                            onClick = { viewModel.showToast("File upload mock initiated") },
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Upload File",
-                                tint = colors.textSecondary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
+                        Spacer(modifier = Modifier.width(4.dp))
 
                         OutlinedTextField(
                             value = chatInputText,
